@@ -1,18 +1,27 @@
 # HỆ THỐNG QUẢN LÝ SINH VIÊN - CƠ SỞ DỮ LIỆU PHÂN TÁN
 
 ## 📋 MỤC LỤC
-1. [Tổng quan dự án](#1-tổng-quan-dự-án)
-2. [Kiến trúc hệ thống](#2-kiến-trúc-hệ-thống)
-3. [Lược đồ cơ sở dữ liệu](#3-lược-đồ-cơ-sở-dữ-liệu)
+1. [Giới thiệu](#1-giới-thiệu)
+2. [Công nghệ sử dụng](#2-công-nghệ-sử-dụng)
+3. [Mô hình dữ liệu quan hệ](#3-mô-hình-dữ-liệu-quan-hệ)
+   - 3.1. [Kiến trúc tổng quan](#31-kiến-trúc-tổng-quan)
+   - 3.2. [Sơ đồ/Mô hình quy trình](#32-sơ-đồmô-hình-quy-trình)
+   - 3.3. [Mô tả chi tiết các bảng](#33-mô-tả-chi-tiết-các-bảng-thuộc-tính-và-mối-quan-hệ)
 4. [Phân tích phân mảnh](#4-phân-tích-phân-mảnh)
+   - 4.1. [Các biểu thức phân mảnh](#41-các-biểu-thức-phân-mảnh-đã-thiết-kế)
+   - 4.2. [Lý do lựa chọn tiêu chí](#42-giải-thích-lý-do-lựa-chọn-tiêu-chí-phân-mảnh)
 5. [Mô hình triển khai](#5-mô-hình-triển-khai)
+   - 5.1. [Môi trường thực tế](#51-môi-trường-thực-tế)
+   - 5.2. [Các bước triển khai](#52-các-bước-triển-khai)
+   - 5.3. [Hình ảnh kiến trúc](#53-hình-ảnh-kiến-trúc-đã-triển-khai)
 6. [Hướng dẫn cài đặt](#6-hướng-dẫn-cài-đặt)
+7. [Kết luận](#7-kết-luận)
 
 ---
 
-## 1. TỔNG QUAN DỰ ÁN
+## 1. GIỚI THIỆU
 
-### 1.1. Giới thiệu
+### 1.1. Tổng quan dự án
 Hệ thống quản lý sinh viên sử dụng kiến trúc **Cơ sở dữ liệu phân tán** với 7 sites độc lập, được thiết kế để quản lý thông tin lớp học, sinh viên và điểm số theo từng khoa.
 
 ### 1.2. Mục tiêu
@@ -21,7 +30,9 @@ Hệ thống quản lý sinh viên sử dụng kiến trúc **Cơ sở dữ li�
 - ✅ Hỗ trợ giao dịch phân tán (SAGA Pattern)
 - ✅ Khả năng mở rộng và bảo trì dễ dàng
 
-### 1.3. Công nghệ sử dụng
+---
+
+## 2. CÔNG NGHỆ SỬ DỤNG
 - **Database**: PostgreSQL 16 Alpine
 - **Container**: Docker & Docker Compose
 - **Backend**: .NET 9 Web API
@@ -31,9 +42,11 @@ Hệ thống quản lý sinh viên sử dụng kiến trúc **Cơ sở dữ li�
 
 ---
 
-## 2. KIẾN TRÚC HỆ THỐNG
+## 3. MÔ HÌNH DỮ LIỆU QUAN HỆ
 
-### 2.1. Sơ đồ kiến trúc tổng quan
+## 3.1. KIẾN TRÚC TỔNG QUAN
+
+### 3.1.1. Sơ đồ kiến trúc hệ thống phân tán
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
@@ -72,7 +85,7 @@ Hệ thống quản lý sinh viên sử dụng kiến trúc **Cơ sở dữ li�
 └─────────────────────────────────────────────────────────────────┘
 ```
 
-### 2.2. Phân bổ dữ liệu theo Sites
+### 3.1.2. Phân bổ dữ liệu theo Sites
 
 | Site | Database | Port | Container Name | Chứa dữ liệu | Phân mảnh |
 |------|----------|------|----------------|--------------|-----------|
@@ -86,11 +99,11 @@ Hệ thống quản lý sinh viên sử dụng kiến trúc **Cơ sở dữ li�
 
 ---
 
-## 3. LƯỢC ĐỒ CƠ SỞ DỮ LIỆU
+## 3.2. SƠ ĐỒ/MÔ HÌNH QUY TRÌNH
 
-### 3.1. Lược đồ toàn cục (Global Schema)
+### 3.2.1. Lược đồ toàn cục (Global Schema)
 
-#### 3.1.1. Sơ đồ ER (Entity-Relationship Diagram)
+#### 📊 Sơ đồ ER (Entity-Relationship Diagram)
 
 ```
                     ┌─────────────────────────────────────┐
@@ -144,7 +157,7 @@ Hệ thống quản lý sinh viên sử dụng kiến trúc **Cơ sở dữ li�
    [FK] = Foreign Key constraint
 ```
 
-#### 3.1.2. Sơ đồ quan hệ chi tiết
+#### 📐 Sơ đồ quan hệ chi tiết
 
 ```
 ┌─────────────────────────────────────────────────────────────────────┐
@@ -195,7 +208,7 @@ Hệ thống quản lý sinh viên sử dụng kiến trúc **Cơ sở dữ li�
 └───────────────────────────────────────────────────────────────────────┘
 ```
 
-#### 3.1.3. Định nghĩa bảng
+#### 📋 Định nghĩa bảng
 
 #### 📚 Bảng: LOP (Lớp học)
 ```sql
@@ -256,9 +269,9 @@ CREATE TABLE dangky_diem23 (
 - `diem2`: Điểm giữa kỳ (30%)
 - `diem3`: Điểm cuối kỳ (60%)
 
-### 3.2. Lược đồ phân mảnh (Fragmentation Schema)
+### 3.2.2. Lược đồ phân mảnh (Fragmentation Schema)
 
-#### 3.2.1. Sơ đồ phân mảnh tổng thể
+#### 🔀 Sơ đồ phân mảnh tổng thể
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────────┐
@@ -317,7 +330,7 @@ CREATE TABLE dangky_diem23 (
 └───────────────────────────────────────────────────────────────────────────────┘
 ```
 
-#### 3.2.2. Phân mảnh bảng LOP
+#### 📊 Phân mảnh bảng LOP (theo thuộc tính KHOA)
 
 ```
                         ┌────────────────────┐
@@ -352,7 +365,7 @@ CREATE TABLE dangky_diem23 (
     ✓ Reconstruction: Possible
 ```
 
-#### 3.2.3. Phân mảnh bảng SINHVIEN (Derived Fragmentation)
+#### 👥 Phân mảnh bảng SINHVIEN (Derived Fragmentation)
 
 ```
                     ┌─────────────────────────┐
@@ -396,7 +409,7 @@ Predicate: P1: mslop LIKE 'L0%'            Predicate: P2: mslop LIKE 'L1%'
 ✓ Reconstruction: Possible
 ```
 
-#### 3.2.4. Phân mảnh bảng DANGKY_DIEM
+#### 📝 Phân mảnh bảng DANGKY_DIEM (Mixed Strategy)
 
 ```
                 ┌──────────────────────────────────┐
@@ -458,7 +471,7 @@ Predicate: P1: mssv LIKE 'SV0%'    Predicate: P2: mssv LIKE 'SV1%'
 ✓ Reconstruction: Possible
 ```
 
-#### 3.2.5. Biểu thức đại số quan hệ chi tiết
+#### 🔢 Biểu thức đại số quan hệ chi tiết
 
 #### 🔹 Phân mảnh bảng LOP
 ```sql
@@ -510,7 +523,11 @@ dangky_diem23 = dangky_diem23_k1 ∪ dangky_diem23_k2
 dangky_diem23_k1 ∩ dangky_diem23_k2 = ∅
 ```
 
-### 3.3. Mối quan hệ giữa các bảng
+---
+
+## 3.3. MÔ TẢ CHI TIẾT CÁC BẢNG, THUỘC TÍNH, VÀ MỐI QUAN HỆ GIỮA CHÚNG
+
+### 3.3.1. Mối quan hệ giữa các bảng
 
 ```
 ┌─────────────┐           ┌──────────────┐           ┌─────────────────┐
@@ -530,13 +547,35 @@ dangky_diem23_k1 ∩ dangky_diem23_k2 = ∅
 - 1 Sinh viên có nhiều Đăng ký điểm (1:N)
 - Mỗi sinh viên chỉ đăng ký một môn học một lần (Composite PK)
 
+### 3.3.2. Chi tiết thuộc tính và ràng buộc
+
+**Bảng LOP:**
+- `mslop`: VARCHAR(10), PRIMARY KEY, NOT NULL
+- `tenlop`: VARCHAR(100), NOT NULL
+- `khoa`: VARCHAR(10), NOT NULL, INDEX (dùng cho phân mảnh)
+
+**Bảng SINHVIEN:**
+- `mssv`: VARCHAR(10), PRIMARY KEY, NOT NULL
+- `hoten`: VARCHAR(100), NOT NULL
+- `phai`: VARCHAR(10), NOT NULL (Nam/Nữ)
+- `ngaysinh`: DATE, NOT NULL
+- `mslop`: VARCHAR(10), FOREIGN KEY → lop.mslop, NOT NULL
+- `hocbong`: DECIMAL(10,2), DEFAULT 0
+
+**Bảng DANGKY_DIEM:**
+- `mssv`: VARCHAR(10), PRIMARY KEY (composite), FOREIGN KEY → sinhvien.mssv, NOT NULL
+- `msmon`: VARCHAR(10), PRIMARY KEY (composite), NOT NULL
+- `diem1`: DECIMAL(4,2), cho phép NULL
+- `diem2`: DECIMAL(4,2), cho phép NULL
+- `diem3`: DECIMAL(4,2), cho phép NULL
+
 ---
 
 ## 4. PHÂN TÍCH PHÂN MẢNH
 
-### 4.1. Các biểu thức phân mảnh đã thiết kế
+## 4.1. CÁC BIỂU THỨC PHÂN MẢNH ĐÃ THIẾT KẾ
 
-#### 4.1.1. Phân mảnh ngang (Horizontal Fragmentation)
+### 4.1.1. Phân mảnh ngang (Horizontal Fragmentation)
 
 **A. Phân mảnh bảng LOP theo thuộc tính KHOA:**
 
@@ -601,28 +640,33 @@ P2: mssv >= 'SV100' AND mssv < 'SV200'
 - **F1 (Site 6)**: 90 bản ghi điểm 2&3 của K1
 - **F2 (Site 7)**: 90 bản ghi điểm 2&3 của K2
 
----
-
-#### 4.1.2. Phân mảnh dọc (Vertical Fragmentation)
+### 4.1.2. Phân mảnh dọc (Vertical Fragmentation)
 
 **Không áp dụng** trong hệ thống này vì:
 - Các bảng có ít thuộc tính (3-6 cột)
 - Không có nhu cầu tách cột độc lập
 - Tất cả thuộc tính thường được truy vấn cùng nhau
 
----
-
-#### 4.1.3. Phân mảnh hỗn hợp (Hybrid Fragmentation)
+### 4.1.3. Phân mảnh hỗn hợp (Hybrid/Mixed Fragmentation)
 
 **Không áp dụng** trong hệ thống này vì:
 - Chỉ cần phân mảnh ngang là đủ
 - Kiến trúc đơn giản, dễ bảo trì
 
+### 4.1.4. Bảng tổng hợp các biểu thức phân mảnh
+
+| Bảng | Loại phân mảnh | Thuộc tính phân mảnh | Số phân mảnh | Sites |
+|------|----------------|----------------------|--------------|-------|
+| **LOP** | Ngang (Horizontal) | `khoa` | 2 | 1, 2 |
+| **SINHVIEN** | Ngang dẫn xuất | `mslop` (foreign key) | 2 | 3, 4 |
+| **DANGKY_DIEM1** | **KHÔNG phân mảnh** | - | 1 (toàn bộ) | 5 |
+| **DANGKY_DIEM23** | Ngang | `mssv` (prefix) | 2 | 6, 7 |
+
 ---
 
-### 4.2. Giải thích lý do lựa chọn tiêu chí phân mảnh
+## 4.2. GIẢI THÍCH LÝ DO LỰA CHỌN TIÊU CHÍ PHÂN MẢNH
 
-#### 4.2.1. Phân mảnh ngang theo KHOA
+### 4.2.1. Phân mảnh ngang theo KHOA
 
 **Lý do chọn:**
 
@@ -649,9 +693,7 @@ SELECT * FROM sinhvien WHERE mslop LIKE 'L0%';  -- Chỉ truy cập Site 3
 - Mỗi khoa có tài nguyên riêng
 - Khoa 1 có nhiều sinh viên không ảnh hưởng Khoa 2
 
----
-
-#### 4.2.2. Site trung tâm cho ĐIỂM 1 (Site 5)
+### 4.2.2. Site trung tâm cho ĐIỂM 1 (Site 5)
 
 **Lý do KHÔNG phân mảnh:**
 
@@ -670,9 +712,7 @@ SELECT AVG(diem1) FROM dangky_diem1;
 - Cập nhật điểm 1 chỉ cần 1 transaction
 - Không cần SAGA pattern
 
----
-
-#### 4.2.3. Mô hình phân tán: KHÔNG SAO CHÉP (No Replication)
+### 4.2.3. Mô hình phân tán: KHÔNG SAO CHÉP (No Replication)
 
 **Lý do chọn:**
 
@@ -691,24 +731,29 @@ SELECT AVG(diem1) FROM dangky_diem1;
 - Read replicas cho báo cáo
 - Backup sites cho disaster recovery
 
----
+### 4.2.4. Tổng kết lý do lựa chọn
 
-### 4.3. Bảng tổng hợp phân mảnh
+**Tiêu chí phân mảnh chính: KHOA (K1/K2)**
+- Phân mảnh theo thuộc tính nghiệp vụ (business attribute)
+- 80% truy vấn liên quan đến 1 khoa cụ thể
+- Tối ưu cho locality of reference
 
-| Bảng | Loại phân mảnh | Thuộc tính phân mảnh | Số phân mảnh | Sites |
-|------|----------------|----------------------|--------------|-------|
-| **LOP** | Ngang (Horizontal) | `khoa` | 2 | 1, 2 |
-| **SINHVIEN** | Ngang dẫn xuất | `mslop` (foreign key) | 2 | 3, 4 |
-| **DANGKY_DIEM1** | **KHÔNG phân mảnh** | - | 1 (toàn bộ) | 5 |
-| **DANGKY_DIEM23** | Ngang | `mssv` (prefix) | 2 | 6, 7 |
+**Mô hình phân tán: Phân mảnh không sao chép (Fragmentation without Replication)**
+- Mỗi fragment chỉ tồn tại ở 1 site duy nhất
+- Đơn giản, dễ quản lý consistency
+- Phù hợp với quy mô nhỏ/trung bình (60 sinh viên)
+
+**Chiến lược hỗn hợp:**
+- Site 5 (Điểm 1): Không phân mảnh - Centralized
+- Sites 1,2,3,4,6,7: Phân mảnh ngang theo khoa
 
 ---
 
 ## 5. MÔ HÌNH TRIỂN KHAI
 
-### 5.1. Môi trường thực tế
+## 5.1. MÔI TRƯỜNG THỰC TẾ
 
-#### 5.1.1. Phần cứng
+### 5.1.1. Mô tả chi tiết số lượng máy chủ
 
 **Cấu hình máy chủ (Development):**
 ```
@@ -723,9 +768,7 @@ SELECT AVG(diem1) FROM dangky_diem1;
 - Sử dụng load balancer
 - Có backup server
 
----
-
-#### 5.1.2. Phần mềm
+### 5.1.2. Phần mềm sử dụng
 
 | Thành phần | Version | Vai trò |
 |------------|---------|---------|
@@ -736,9 +779,27 @@ SELECT AVG(diem1) FROM dangky_diem1;
 | **Node.js** | 20 LTS | Frontend runtime |
 | **Next.js** | 15.0 | React framework |
 
----
+### 5.1.3. Máy chủ nào chứa phân mảnh nào
 
-#### 5.1.3. Chi tiết các Sites
+**Bảng ánh xạ Sites - Fragments:**
+
+| Site | Container | Database | Port | Fragment | Dữ liệu |
+|------|-----------|----------|------|----------|---------|
+| **Site 1** | postgres-lop-khoa-k1 | LopK1DB | 5439 | lop_k1 | 10 lớp K1 (L01-L10) |
+| **Site 2** | postgres-lop-khoa-k2 | LopK2DB | 5433 | lop_k2 | 10 lớp K2 (L11-L20) |
+| **Site 3** | postgres-sinhvien-khoa-k1 | SinhVienK1DB | 5434 | sinhvien_k1 | 30 SV K1 (SV001-030) |
+| **Site 4** | postgres-sinhvien-khoa-k2 | SinhVienK2DB | 5435 | sinhvien_k2 | 30 SV K2 (SV101-130) |
+| **Site 5** | postgres-dangky-diem1 | DangKyDiem1DB | 5436 | dangky_diem1 | 180 điểm 1 (K1+K2) |
+| **Site 6** | postgres-dangky-diem23-khoa-k1 | DangKyDiem23K1DB | 5437 | dangky_diem23_k1 | 90 điểm 2,3 K1 |
+| **Site 7** | postgres-dangky-diem23-khoa-k2 | DangKyDiem23K2DB | 5438 | dangky_diem23_k2 | 90 điểm 2,3 K2 |
+
+**Thống kê phân bổ:**
+- Tổng: 7 máy chủ database (Docker containers)
+- Mạng: 1 bridge network (csdl-network)
+- Volumes: 7 persistent volumes
+- Tổng dữ liệu: 20 lớp + 60 sinh viên + 360 bản ghi điểm
+
+### 5.1.4. Chi tiết cấu hình Sites
 
 ```yaml
 # File: docker-compose.yml
@@ -785,9 +846,9 @@ postgres-lop-khoa-k2:
 
 ---
 
-### 5.2. Các bước triển khai
+## 5.2. CÁC BƯỚC TRIỂN KHAI
 
-#### 📋 **Bước 1: Chuẩn bị môi trường**
+### 5.2.1. Chuẩn bị môi trường
 
 ```bash
 # 1.1. Cài đặt Docker
@@ -803,9 +864,7 @@ git clone <repository-url>
 cd CSDLPT-DOAN
 ```
 
----
-
-#### 📋 **Bước 2: Khởi tạo Databases**
+### 5.2.2. Khởi tạo Databases
 
 ```bash
 # 2.1. Di chuyển vào thư mục Database
@@ -833,9 +892,7 @@ docker ps
 docker logs postgres-lop-khoa-k1
 ```
 
----
-
-#### 📋 **Bước 3: Xác thực dữ liệu**
+### 5.2.3. Xác thực dữ liệu
 
 ```bash
 # 3.1. Kiểm tra Site 1 (Lớp K1)
@@ -867,9 +924,7 @@ docker exec postgres-dangky-diem23-khoa-k2 psql -U admin -d DangKyDiem23K2DB -c 
 # Output: 90
 ```
 
----
-
-#### 📋 **Bước 4: Khởi động Backend API**
+### 5.2.4. Khởi động Backend API
 
 ```bash
 # 4.1. Di chuyển vào thư mục API
@@ -893,9 +948,7 @@ dotnet run
 # Application started. Press Ctrl+C to shut down.
 ```
 
----
-
-#### 📋 **Bước 5: Khởi động Frontend**
+### 5.2.5. Khởi động Frontend
 
 ```bash
 # 5.1. Mở terminal mới, di chuyển vào frontend
@@ -912,9 +965,7 @@ npm run dev
 # - Local:        http://localhost:3000
 ```
 
----
-
-#### 📋 **Bước 6: Kiểm tra toàn hệ thống**
+### 5.2.6. Kiểm tra toàn hệ thống
 
 ```bash
 # 6.1. Mở trình duyệt
@@ -935,9 +986,9 @@ docker exec postgres-lop-khoa-k1 psql -U admin -d LopK1DB -c "SELECT * FROM lop_
 
 ---
 
-### 5.3. Hình ảnh kiến trúc đã triển khai
+## 5.3. HÌNH ẢNH KIẾN TRÚC ĐÃ TRIỂN KHAI
 
-#### 5.3.1. Sơ đồ mạng Docker
+### 5.3.1. Sơ đồ mạng Docker
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
@@ -977,9 +1028,7 @@ docker exec postgres-lop-khoa-k1 psql -U admin -d LopK1DB -c "SELECT * FROM lop_
                     └───────────────────┘
 ```
 
----
-
-#### 5.3.2. Luồng dữ liệu khi tạo lớp mới
+### 5.3.2. Luồng dữ liệu khi tạo lớp mới
 
 ```
 ┌─────────┐                 ┌─────────┐                 ┌─────────┐
@@ -1023,9 +1072,7 @@ docker exec postgres-lop-khoa-k1 psql -U admin -d LopK1DB -c "SELECT * FROM lop_
      │                           │                           │
 ```
 
----
-
-#### 5.3.3. SAGA Pattern cho Distributed Transaction
+### 5.3.3. SAGA Pattern cho Distributed Transaction
 
 **Ví dụ: Tạo sinh viên mới**
 
@@ -1075,9 +1122,7 @@ Step 3: Initialize Scores (Optional)
 └────────────────────────────────────────────────────────────────┘
 ```
 
----
-
-#### 5.3.4. Cấu trúc thư mục dự án
+### 5.3.4. Cấu trúc thư mục dự án
 
 ```
 CSDLPT-DOAN/
