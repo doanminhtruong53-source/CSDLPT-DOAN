@@ -90,6 +90,113 @@ Hệ thống quản lý sinh viên sử dụng kiến trúc **Cơ sở dữ li�
 
 ### 3.1. Lược đồ toàn cục (Global Schema)
 
+#### 3.1.1. Sơ đồ ER (Entity-Relationship Diagram)
+
+```
+                    ┌─────────────────────────────────────┐
+                    │           ENTITY: LOP               │
+                    │         (Lớp học)                   │
+                    ├─────────────────────────────────────┤
+                    │ 🔑 mslop: VARCHAR(10) [PK]         │
+                    │    tenlop: VARCHAR(100)             │
+                    │    khoa: VARCHAR(10)                │
+                    └──────────────┬──────────────────────┘
+                                   │
+                                   │ 1
+                                   │
+                                   │ có
+                                   │
+                                   │ N
+                                   │
+                    ┌──────────────▼──────────────────────┐
+                    │        ENTITY: SINHVIEN             │
+                    │        (Sinh viên)                  │
+                    ├─────────────────────────────────────┤
+                    │ 🔑 mssv: VARCHAR(10) [PK]          │
+                    │    hoten: VARCHAR(100)              │
+                    │    phai: VARCHAR(10)                │
+                    │    ngaysinh: DATE                   │
+                    │ 🔗 mslop: VARCHAR(10) [FK → LOP]   │
+                    │    hocbong: DECIMAL(10,2)           │
+                    └──────────────┬──────────────────────┘
+                                   │
+                                   │ 1
+                                   │
+                                   │ đăng ký
+                                   │
+                                   │ N
+                                   │
+                    ┌──────────────▼──────────────────────┐
+                    │      ENTITY: DANGKY_DIEM            │
+                    │      (Đăng ký và điểm)              │
+                    ├─────────────────────────────────────┤
+                    │ 🔑 mssv: VARCHAR(10) [PK, FK]      │
+                    │ 🔑 msmon: VARCHAR(10) [PK]         │
+                    │    diem1: DECIMAL(4,2)              │
+                    │    diem2: DECIMAL(4,2)              │
+                    │    diem3: DECIMAL(4,2)              │
+                    └─────────────────────────────────────┘
+
+📌 Chú thích:
+   🔑 = Primary Key
+   🔗 = Foreign Key
+   [PK] = Primary Key constraint
+   [FK] = Foreign Key constraint
+```
+
+#### 3.1.2. Sơ đồ quan hệ chi tiết
+
+```
+┌─────────────────────────────────────────────────────────────────────┐
+│                        GLOBAL SCHEMA                                 │
+├─────────────────────────────────────────────────────────────────────┤
+│                                                                       │
+│  ┌────────────────────┐                                             │
+│  │       LOP          │                                             │
+│  │ ────────────────── │                                             │
+│  │ mslop  [PK]        │◄────────────┐                               │
+│  │ tenlop             │              │ 1                             │
+│  │ khoa   [Index]     │              │                               │
+│  └────────────────────┘              │                               │
+│                                       │                               │
+│                                       │ thuộc                         │
+│                                       │                               │
+│  ┌────────────────────┐              │ N                             │
+│  │    SINHVIEN        │              │                               │
+│  │ ────────────────── │              │                               │
+│  │ mssv   [PK]        │              │                               │
+│  │ hoten              │              │                               │
+│  │ phai               │              │                               │
+│  │ ngaysinh           │              │                               │
+│  │ mslop  [FK]        │──────────────┘                               │
+│  │ hocbong            │                                              │
+│  └──────────┬─────────┘                                              │
+│             │                                                         │
+│             │ 1                                                       │
+│             │                                                         │
+│             │ có                                                      │
+│             │                                                         │
+│             │ N                                                       │
+│             │                                                         │
+│  ┌──────────▼─────────────────────────┐                             │
+│  │        DANGKY_DIEM                 │                             │
+│  │ ────────────────────────────────── │                             │
+│  │ mssv   [PK, FK → SINHVIEN]        │                             │
+│  │ msmon  [PK]                        │                             │
+│  │ diem1  [DECIMAL(4,2)]              │                             │
+│  │ diem2  [DECIMAL(4,2)]              │                             │
+│  │ diem3  [DECIMAL(4,2)]              │                             │
+│  └────────────────────────────────────┘                             │
+│                                                                       │
+│  Cardinality:                                                        │
+│  • 1 LOP : N SINHVIEN                                               │
+│  • 1 SINHVIEN : N DANGKY_DIEM                                       │
+│                                                                       │
+└───────────────────────────────────────────────────────────────────────┘
+```
+
+#### 3.1.3. Định nghĩa bảng
+
 #### 📚 Bảng: LOP (Lớp học)
 ```sql
 CREATE TABLE lop (
@@ -150,6 +257,208 @@ CREATE TABLE dangky_diem23 (
 - `diem3`: Điểm cuối kỳ (60%)
 
 ### 3.2. Lược đồ phân mảnh (Fragmentation Schema)
+
+#### 3.2.1. Sơ đồ phân mảnh tổng thể
+
+```
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                    FRAGMENTATION ARCHITECTURE                                │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                               │
+│                          ┌──────────────────┐                                │
+│                          │   GLOBAL SCHEMA  │                                │
+│                          │   ────────────   │                                │
+│                          │  • LOP (20)      │                                │
+│                          │  • SINHVIEN (60) │                                │
+│                          │  • DANGKY (360)  │                                │
+│                          └────────┬─────────┘                                │
+│                                   │                                           │
+│                                   │ Horizontal Fragmentation                 │
+│                                   │ (by KHOA attribute)                      │
+│                                   │                                           │
+│         ┌─────────────────────────┼─────────────────────────┐                │
+│         │                         │                         │                │
+│         ▼                         ▼                         ▼                │
+│  ┌─────────────┐          ┌─────────────┐          ┌─────────────┐         │
+│  │   KHOA 1    │          │  CENTRALIZED │          │   KHOA 2    │         │
+│  │   (K1)      │          │   (ALL)      │          │   (K2)      │         │
+│  └─────────────┘          └─────────────┘          └─────────────┘         │
+│         │                         │                         │                │
+│         ▼                         ▼                         ▼                │
+│  ┌─────────────┐          ┌─────────────┐          ┌─────────────┐         │
+│  │  SITE 1     │          │  SITE 5     │          │  SITE 2     │         │
+│  │  LopK1DB    │          │ DangKyDiem1 │          │  LopK2DB    │         │
+│  │  :5439      │          │    :5436    │          │  :5433      │         │
+│  │             │          │             │          │             │         │
+│  │ lop_k1 (10) │          │diem1 (180)  │          │ lop_k2 (10) │         │
+│  │ L01-L10     │          │ K1+K2       │          │ L11-L20     │         │
+│  └─────────────┘          └─────────────┘          └─────────────┘         │
+│         │                                                  │                 │
+│         ▼                                                  ▼                 │
+│  ┌─────────────┐                                    ┌─────────────┐         │
+│  │  SITE 3     │                                    │  SITE 4     │         │
+│  │ SinhVienK1  │                                    │ SinhVienK2  │         │
+│  │  :5434      │                                    │  :5435      │         │
+│  │             │                                    │             │         │
+│  │sinhvien(30) │                                    │sinhvien(30) │         │
+│  │ SV001-030   │                                    │ SV101-130   │         │
+│  └─────────────┘                                    └─────────────┘         │
+│         │                                                  │                 │
+│         ▼                                                  ▼                 │
+│  ┌─────────────┐                                    ┌─────────────┐         │
+│  │  SITE 6     │                                    │  SITE 7     │         │
+│  │DangKy23 K1  │                                    │DangKy23 K2  │         │
+│  │  :5437      │                                    │  :5438      │         │
+│  │             │                                    │             │         │
+│  │diem2,3 (90) │                                    │diem2,3 (90) │         │
+│  │ K1 only     │                                    │ K2 only     │         │
+│  └─────────────┘                                    └─────────────┘         │
+│                                                                               │
+└───────────────────────────────────────────────────────────────────────────────┘
+```
+
+#### 3.2.2. Phân mảnh bảng LOP
+
+```
+                        ┌────────────────────┐
+                        │    LOP (Global)    │
+                        │  ──────────────    │
+                        │  mslop, tenlop     │
+                        │  khoa              │
+                        │  Total: 20 rows    │
+                        └──────────┬─────────┘
+                                   │
+                  σ (Selection by khoa)
+                                   │
+                ┌──────────────────┴──────────────────┐
+                │                                      │
+                ▼                                      ▼
+    ┌───────────────────────┐            ┌───────────────────────┐
+    │   F1 = σ(khoa='K1')   │            │   F2 = σ(khoa='K2')   │
+    │   ─────────────────   │            │   ─────────────────   │
+    │   Site 1: LopK1DB     │            │   Site 2: LopK2DB     │
+    │   Port: 5439          │            │   Port: 5433          │
+    │                       │            │                       │
+    │   lop_k1:             │            │   lop_k2:             │
+    │   • mslop: L01-L10    │            │   • mslop: L11-L20    │
+    │   • khoa: 'K1'        │            │   • khoa: 'K2'        │
+    │   • Rows: 10          │            │   • Rows: 10          │
+    └───────────────────────┘            └───────────────────────┘
+
+    Predicate: P1: khoa='K1'             Predicate: P2: khoa='K2'
+    
+    ✓ Completeness: LOP = F1 ∪ F2
+    ✓ Disjointness: F1 ∩ F2 = ∅
+    ✓ Reconstruction: Possible
+```
+
+#### 3.2.3. Phân mảnh bảng SINHVIEN (Derived Fragmentation)
+
+```
+                    ┌─────────────────────────┐
+                    │  SINHVIEN (Global)      │
+                    │  ──────────────────     │
+                    │  mssv, hoten, phai      │
+                    │  ngaysinh, mslop, hb    │
+                    │  Total: 60 rows         │
+                    └────────────┬────────────┘
+                                 │
+              Semi-join with LOP fragments
+                (Derived Horizontal Fragmentation)
+                                 │
+          ┌──────────────────────┴───────────────────────┐
+          │                                               │
+          ▼                                               ▼
+┌─────────────────────────┐                ┌─────────────────────────┐
+│ F1 = SINHVIEN ⋉ lop_k1  │                │ F2 = SINHVIEN ⋉ lop_k2  │
+│ ─────────────────────── │                │ ─────────────────────── │
+│ Site 3: SinhVienK1DB    │                │ Site 4: SinhVienK2DB    │
+│ Port: 5434              │                │ Port: 5435              │
+│                         │                │                         │
+│ sinhvien_k1:            │                │ sinhvien_k2:            │
+│ • mssv: SV001-SV030     │                │ • mssv: SV101-SV130     │
+│ • mslop: L01-L05        │                │ • mslop: L11-L15        │
+│   (6 SV per class)      │                │   (6 SV per class)      │
+│ • Rows: 30              │                │ • Rows: 30              │
+│                         │                │                         │
+│ Distribution:           │                │ Distribution:           │
+│  L01: 6 students        │                │  L11: 6 students        │
+│  L02: 6 students        │                │  L12: 6 students        │
+│  L03: 6 students        │                │  L13: 6 students        │
+│  L04: 6 students        │                │  L14: 6 students        │
+│  L05: 6 students        │                │  L15: 6 students        │
+└─────────────────────────┘                └─────────────────────────┘
+
+Predicate: P1: mslop LIKE 'L0%'            Predicate: P2: mslop LIKE 'L1%'
+
+✓ Completeness: SINHVIEN = F1 ∪ F2
+✓ Disjointness: F1 ∩ F2 = ∅
+✓ Reconstruction: Possible
+```
+
+#### 3.2.4. Phân mảnh bảng DANGKY_DIEM
+
+```
+                ┌──────────────────────────────────┐
+                │    DANGKY_DIEM (Global)          │
+                │    ────────────────────          │
+                │    mssv, msmon, diem1,2,3        │
+                │    Total: 360 rows               │
+                └────────────┬─────────────────────┘
+                             │
+                             │
+        ┌────────────────────┼────────────────────┐
+        │                    │                    │
+        │ Vertical Split     │                    │
+        │ by Diem Type       │                    │
+        │                    │                    │
+        ▼                    ▼                    ▼
+┌───────────────┐    ┌──────────────┐    ┌──────────────┐
+│   DIEM 1      │    │  DIEM 2 & 3  │    │  DIEM 2 & 3  │
+│ (Centralized) │    │    (K1)      │    │    (K2)      │
+└───────────────┘    └──────────────┘    └──────────────┘
+        │                    │                    │
+        ▼                    ▼                    ▼
+┌───────────────────────────────────────────────────────┐
+│ Site 5: DangKyDiem1DB                                 │
+│ Port: 5436                                            │
+│ ───────────────────────────────────────               │
+│ dangky_diem1 (NO FRAGMENTATION):                      │
+│ • mssv: SV0xx + SV1xx (ALL students)                  │
+│ • msmon: M01-M03                                      │
+│ • diem1: DECIMAL(4,2)                                 │
+│ • Rows: 180 (90 K1 + 90 K2)                           │
+│                                                        │
+│ K1 Data: 90 rows (SV001-SV030 × 3 môn)               │
+│ K2 Data: 90 rows (SV101-SV130 × 3 môn)               │
+└───────────────────────────────────────────────────────┘
+
+        🔄 Centralized Site - No Fragmentation
+        Reason: Frequent aggregate queries
+
+┌─────────────────────────┐        ┌─────────────────────────┐
+│ Site 6: DangKy23K1DB    │        │ Site 7: DangKy23K2DB    │
+│ Port: 5437              │        │ Port: 5438              │
+│ ─────────────────────── │        │ ─────────────────────── │
+│ F1 = σ(mssv LIKE 'SV0%')│        │ F2 = σ(mssv LIKE 'SV1%')│
+│                         │        │                         │
+│ dangky_diem23_k1:       │        │ dangky_diem23_k2:       │
+│ • mssv: SV001-SV030     │        │ • mssv: SV101-SV130     │
+│ • msmon: M01-M03        │        │ • msmon: M01-M03        │
+│ • diem2: DECIMAL(4,2)   │        │ • diem2: DECIMAL(4,2)   │
+│ • diem3: DECIMAL(4,2)   │        │ • diem3: DECIMAL(4,2)   │
+│ • Rows: 90              │        │ • Rows: 90              │
+│   (30 students × 3 môn) │        │   (30 students × 3 môn) │
+└─────────────────────────┘        └─────────────────────────┘
+
+Predicate: P1: mssv LIKE 'SV0%'    Predicate: P2: mssv LIKE 'SV1%'
+
+✓ Completeness: DANGKY_DIEM23 = F1 ∪ F2
+✓ Disjointness: F1 ∩ F2 = ∅
+✓ Reconstruction: Possible
+```
+
+#### 3.2.5. Biểu thức đại số quan hệ chi tiết
 
 #### 🔹 Phân mảnh bảng LOP
 ```sql
