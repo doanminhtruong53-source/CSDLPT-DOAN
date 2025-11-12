@@ -1,0 +1,973 @@
+# HỆ THỐNG QUẢN LÝ SINH VIÊN - CƠ SỞ DỮ LIỆU PHÂN TÁN
+
+## 📋 MỤC LỤC
+1. [Tổng quan dự án](#1-tổng-quan-dự-án)
+2. [Kiến trúc hệ thống](#2-kiến-trúc-hệ-thống)
+3. [Lược đồ cơ sở dữ liệu](#3-lược-đồ-cơ-sở-dữ-liệu)
+4. [Phân tích phân mảnh](#4-phân-tích-phân-mảnh)
+5. [Mô hình triển khai](#5-mô-hình-triển-khai)
+6. [Hướng dẫn cài đặt](#6-hướng-dẫn-cài-đặt)
+
+---
+
+## 1. TỔNG QUAN DỰ ÁN
+
+### 1.1. Giới thiệu
+Hệ thống quản lý sinh viên sử dụng kiến trúc **Cơ sở dữ liệu phân tán** với 7 sites độc lập, được thiết kế để quản lý thông tin lớp học, sinh viên và điểm số theo từng khoa.
+
+### 1.2. Mục tiêu
+- ✅ Phân tán dữ liệu theo khoa (K1, K2) để tối ưu hiệu suất
+- ✅ Đảm bảo tính toàn vẹn và nhất quán dữ liệu
+- ✅ Hỗ trợ giao dịch phân tán (SAGA Pattern)
+- ✅ Khả năng mở rộng và bảo trì dễ dàng
+
+### 1.3. Công nghệ sử dụng
+- **Database**: PostgreSQL 16 Alpine
+- **Container**: Docker & Docker Compose
+- **Backend**: .NET 9 Web API
+- **Frontend**: Next.js 15 (React)
+- **ORM**: Entity Framework Core
+- **Pattern**: SAGA Pattern cho distributed transactions
+
+---
+
+## 2. KIẾN TRÚC HỆ THỐNG
+
+### 2.1. Sơ đồ kiến trúc tổng quan
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                         CLIENT LAYER                             │
+│                    (Next.js Frontend - React)                    │
+└────────────────────────────────┬────────────────────────────────┘
+                                 │
+                                 │ HTTP/REST API
+                                 │
+┌────────────────────────────────▼────────────────────────────────┐
+│                      APPLICATION LAYER                           │
+│                    (.NET 9 Web API - SAGA)                       │
+│  ┌─────────────┐  ┌─────────────┐  ┌──────────────────────┐   │
+│  │ ClassService│  │StudentService│  │RegistrationService │   │
+│  └─────────────┘  └─────────────┘  └──────────────────────┘   │
+└───┬────┬────┬─────────┬──────┬─────────┬──────────┬───────────┘
+    │    │    │         │      │         │          │
+    │    │    │         │      │         │          │
+┌───▼────▼────▼─────────▼──────▼─────────▼──────────▼───────────┐
+│                      DATABASE LAYER                             │
+│              (7 PostgreSQL Sites - Distributed)                 │
+│                                                                  │
+│  ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌──────────┐       │
+│  │ Site 1   │  │ Site 2   │  │ Site 3   │  │ Site 4   │       │
+│  │ LopK1DB  │  │ LopK2DB  │  │SinhVienK1│  │SinhVienK2│       │
+│  │ :5439    │  │ :5433    │  │   :5434  │  │   :5435  │       │
+│  └──────────┘  └──────────┘  └──────────┘  └──────────┘       │
+│                                                                  │
+│  ┌──────────┐  ┌──────────┐  ┌──────────┐                     │
+│  │ Site 5   │  │ Site 6   │  │ Site 7   │                     │
+│  │DangKyDiem1│ │DangKy23K1│  │DangKy23K2│                     │
+│  │ :5436    │  │ :5437    │  │ :5438    │                     │
+│  └──────────┘  └──────────┘  └──────────┘                     │
+│                                                                  │
+│            Network: csdl-network (Bridge Driver)                │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+### 2.2. Phân bổ dữ liệu theo Sites
+
+| Site | Database | Port | Container Name | Chứa dữ liệu | Phân mảnh |
+|------|----------|------|----------------|--------------|-----------|
+| **1** | LopK1DB | 5439 | postgres-lop-khoa-k1 | Lớp học Khoa 1 (L01-L10) | Ngang (khoa='K1') |
+| **2** | LopK2DB | 5433 | postgres-lop-khoa-k2 | Lớp học Khoa 2 (L11-L20) | Ngang (khoa='K2') |
+| **3** | SinhVienK1DB | 5434 | postgres-sinhvien-khoa-k1 | Sinh viên K1 (SV001-SV030) | Ngang (mslop LIKE 'L0%') |
+| **4** | SinhVienK2DB | 5435 | postgres-sinhvien-khoa-k2 | Sinh viên K2 (SV101-SV130) | Ngang (mslop LIKE 'L1%') |
+| **5** | DangKyDiem1DB | 5436 | postgres-dangky-diem1 | Điểm 1 tất cả khoa | **KHÔNG phân mảnh** (Trung tâm) |
+| **6** | DangKyDiem23K1DB | 5437 | postgres-dangky-diem23-khoa-k1 | Điểm 2,3 của K1 | Ngang (mssv LIKE 'SV0%') |
+| **7** | DangKyDiem23K2DB | 5438 | postgres-dangky-diem23-khoa-k2 | Điểm 2,3 của K2 | Ngang (mssv LIKE 'SV1%') |
+
+---
+
+## 3. LƯỢC ĐỒ CƠ SỞ DỮ LIỆU
+
+### 3.1. Lược đồ toàn cục (Global Schema)
+
+#### 📚 Bảng: LOP (Lớp học)
+```sql
+CREATE TABLE lop (
+    mslop VARCHAR(10) PRIMARY KEY,      -- Mã số lớp (L01, L02, ..., L20)
+    tenlop VARCHAR(100) NOT NULL,       -- Tên lớp học
+    khoa VARCHAR(10) NOT NULL           -- Khoa (K1 hoặc K2)
+);
+```
+
+**Ý nghĩa thuộc tính:**
+- `mslop`: Mã định danh duy nhất cho lớp học
+- `tenlop`: Tên mô tả lớp học (VD: "Lập trình Web (ReactJS & Node.js)")
+- `khoa`: Thuộc tính phân mảnh - xác định lớp thuộc Khoa 1 hay Khoa 2
+
+#### 👥 Bảng: SINHVIEN (Sinh viên)
+```sql
+CREATE TABLE sinhvien (
+    mssv VARCHAR(10) PRIMARY KEY,       -- Mã số sinh viên
+    hoten VARCHAR(100) NOT NULL,        -- Họ và tên
+    phai VARCHAR(10) NOT NULL,          -- Giới tính (Nam/Nữ)
+    ngaysinh DATE NOT NULL,             -- Ngày sinh
+    mslop VARCHAR(10) NOT NULL,         -- Mã lớp (Foreign Key → lop.mslop)
+    hocbong DECIMAL(10,2) DEFAULT 0     -- Học bổng
+);
+```
+
+**Ý nghĩa thuộc tính:**
+- `mssv`: Mã định danh duy nhất cho sinh viên
+  - SV0xx: Sinh viên Khoa 1
+  - SV1xx: Sinh viên Khoa 2
+- `mslop`: Khóa ngoại tham chiếu đến bảng LOP
+- `hocbong`: Số tiền học bổng (có thể NULL)
+
+#### 📝 Bảng: DANGKY_DIEM (Đăng ký và điểm)
+```sql
+-- ĐIỂM 1 (Site trung tâm - không phân mảnh)
+CREATE TABLE dangky_diem1 (
+    mssv VARCHAR(10) NOT NULL,          -- Mã sinh viên
+    msmon VARCHAR(10) NOT NULL,         -- Mã môn học
+    diem1 DECIMAL(4,2),                 -- Điểm chuyên cần (0-10)
+    PRIMARY KEY (mssv, msmon)
+);
+
+-- ĐIỂM 2&3 (Phân mảnh theo khoa)
+CREATE TABLE dangky_diem23 (
+    mssv VARCHAR(10) NOT NULL,          -- Mã sinh viên
+    msmon VARCHAR(10) NOT NULL,         -- Mã môn học
+    diem2 DECIMAL(4,2),                 -- Điểm giữa kỳ (0-10)
+    diem3 DECIMAL(4,2),                 -- Điểm cuối kỳ (0-10)
+    PRIMARY KEY (mssv, msmon)
+);
+```
+
+**Ý nghĩa thuộc tính:**
+- `(mssv, msmon)`: Composite primary key - một sinh viên chỉ đăng ký một môn một lần
+- `diem1`: Điểm chuyên cần (10%)
+- `diem2`: Điểm giữa kỳ (30%)
+- `diem3`: Điểm cuối kỳ (60%)
+
+### 3.2. Lược đồ phân mảnh (Fragmentation Schema)
+
+#### 🔹 Phân mảnh bảng LOP
+```sql
+-- Fragment 1 (Site 1):
+lop_k1 = σ(khoa='K1')(lop)
+
+-- Fragment 2 (Site 2):
+lop_k2 = σ(khoa='K2')(lop)
+
+-- Tính đầy đủ:
+lop = lop_k1 ∪ lop_k2
+
+-- Tính không trùng lặp:
+lop_k1 ∩ lop_k2 = ∅
+```
+
+#### 🔹 Phân mảnh bảng SINHVIEN
+```sql
+-- Fragment 1 (Site 3):
+sinhvien_k1 = σ(mslop IN (SELECT mslop FROM lop_k1))(sinhvien)
+            = σ(mslop LIKE 'L0%')(sinhvien)
+
+-- Fragment 2 (Site 4):
+sinhvien_k2 = σ(mslop IN (SELECT mslop FROM lop_k2))(sinhvien)
+            = σ(mslop LIKE 'L1%')(sinhvien)
+
+-- Tính đầy đủ:
+sinhvien = sinhvien_k1 ∪ sinhvien_k2
+
+-- Tính không trùng lặp:
+sinhvien_k1 ∩ sinhvien_k2 = ∅
+```
+
+#### 🔹 Phân mảnh bảng DANGKY_DIEM
+```sql
+-- Fragment 1 (Site 5) - KHÔNG PHÂN MẢNH:
+dangky_diem1 = dangky_diem1  (toàn bộ dữ liệu)
+
+-- Fragment 2 (Site 6):
+dangky_diem23_k1 = σ(mssv LIKE 'SV0%')(dangky_diem23)
+
+-- Fragment 3 (Site 7):
+dangky_diem23_k2 = σ(mssv LIKE 'SV1%')(dangky_diem23)
+
+-- Tính đầy đủ:
+dangky_diem23 = dangky_diem23_k1 ∪ dangky_diem23_k2
+
+-- Tính không trùng lặp:
+dangky_diem23_k1 ∩ dangky_diem23_k2 = ∅
+```
+
+### 3.3. Mối quan hệ giữa các bảng
+
+```
+┌─────────────┐           ┌──────────────┐           ┌─────────────────┐
+│    LOP      │           │  SINHVIEN    │           │  DANGKY_DIEM    │
+│─────────────│           │──────────────│           │─────────────────│
+│ mslop (PK)  │◄─────────│ mssv (PK)   │◄─────────│ mssv (PK,FK)   │
+│ tenlop      │    1:N    │ hoten        │    1:N    │ msmon (PK,FK)  │
+│ khoa        │           │ phai         │           │ diem1          │
+└─────────────┘           │ ngaysinh     │           │ diem2          │
+                          │ mslop (FK)   │           │ diem3          │
+                          │ hocbong      │           └─────────────────┘
+                          └──────────────┘
+```
+
+**Ràng buộc toàn vẹn:**
+- 1 Lớp có nhiều Sinh viên (1:N)
+- 1 Sinh viên có nhiều Đăng ký điểm (1:N)
+- Mỗi sinh viên chỉ đăng ký một môn học một lần (Composite PK)
+
+---
+
+## 4. PHÂN TÍCH PHÂN MẢNH
+
+### 4.1. Các biểu thức phân mảnh đã thiết kế
+
+#### 4.1.1. Phân mảnh ngang (Horizontal Fragmentation)
+
+**A. Phân mảnh bảng LOP theo thuộc tính KHOA:**
+
+```sql
+-- Biểu thức phân mảnh:
+F1 = σ(khoa='K1')(lop)  -- Site 1
+F2 = σ(khoa='K2')(lop)  -- Site 2
+
+-- Predicate phân mảnh:
+P1: khoa = 'K1'
+P2: khoa = 'K2'
+
+-- Điều kiện:
+1. Tính đầy đủ (Completeness): lop = F1 ∪ F2
+2. Tính không trùng lặp (Disjointness): F1 ∩ F2 = ∅
+3. Tính tái tạo (Reconstruction): ✓
+```
+
+**Dữ liệu thực tế:**
+- **F1 (Site 1)**: 10 lớp K1 - L01 đến L10
+- **F2 (Site 2)**: 10 lớp K2 - L11 đến L20
+
+---
+
+**B. Phân mảnh bảng SINHVIEN theo MSLOP:**
+
+```sql
+-- Biểu thức phân mảnh dẫn xuất (Derived Fragmentation):
+F1 = sinhvien ⋉ lop_k1         -- Site 3
+F2 = sinhvien ⋉ lop_k2         -- Site 4
+
+-- Tương đương:
+F1 = σ(mslop IN ('L01','L02',...,'L10'))(sinhvien)
+F2 = σ(mslop IN ('L11','L12',...,'L20'))(sinhvien)
+
+-- Hoặc đơn giản hóa:
+F1 = σ(mslop LIKE 'L0%')(sinhvien)
+F2 = σ(mslop LIKE 'L1%')(sinhvien)
+```
+
+**Dữ liệu thực tế:**
+- **F1 (Site 3)**: 30 sinh viên K1 - MSSV: SV001 → SV030
+  - Phân bố: 6 SV/lớp × 5 lớp (L01-L05)
+- **F2 (Site 4)**: 30 sinh viên K2 - MSSV: SV101 → SV130
+  - Phân bố: 6 SV/lớp × 5 lớp (L11-L15)
+
+---
+
+**C. Phân mảnh bảng DANGKY_DIEM23 theo MSSV:**
+
+```sql
+-- Biểu thức phân mảnh:
+F1 = σ(mssv LIKE 'SV0%')(dangky_diem23)  -- Site 6
+F2 = σ(mssv LIKE 'SV1%')(dangky_diem23)  -- Site 7
+
+-- Predicate phân mảnh:
+P1: mssv >= 'SV000' AND mssv < 'SV100'
+P2: mssv >= 'SV100' AND mssv < 'SV200'
+```
+
+**Dữ liệu thực tế:**
+- **F1 (Site 6)**: 90 bản ghi điểm 2&3 của K1
+- **F2 (Site 7)**: 90 bản ghi điểm 2&3 của K2
+
+---
+
+#### 4.1.2. Phân mảnh dọc (Vertical Fragmentation)
+
+**Không áp dụng** trong hệ thống này vì:
+- Các bảng có ít thuộc tính (3-6 cột)
+- Không có nhu cầu tách cột độc lập
+- Tất cả thuộc tính thường được truy vấn cùng nhau
+
+---
+
+#### 4.1.3. Phân mảnh hỗn hợp (Hybrid Fragmentation)
+
+**Không áp dụng** trong hệ thống này vì:
+- Chỉ cần phân mảnh ngang là đủ
+- Kiến trúc đơn giản, dễ bảo trì
+
+---
+
+### 4.2. Giải thích lý do lựa chọn tiêu chí phân mảnh
+
+#### 4.2.1. Phân mảnh ngang theo KHOA
+
+**Lý do chọn:**
+
+✅ **1. Tối ưu truy vấn địa phương (Locality of Reference)**
+```sql
+-- Truy vấn chỉ cần 1 site:
+SELECT * FROM lop WHERE khoa = 'K1';  -- Chỉ truy cập Site 1
+SELECT * FROM sinhvien WHERE mslop LIKE 'L0%';  -- Chỉ truy cập Site 3
+```
+
+✅ **2. Giảm chi phí truyền thông (Network Cost)**
+- 80% truy vấn chỉ liên quan đến 1 khoa
+- Không cần join giữa các sites thường xuyên
+
+✅ **3. Tăng tính sẵn sàng (Availability)**
+- Site 1 down → Khoa 2 vẫn hoạt động bình thường
+- Site 2 down → Khoa 1 vẫn hoạt động bình thường
+
+✅ **4. Dễ mở rộng (Scalability)**
+- Thêm Khoa 3 → Thêm 3 sites mới (lớp, sinh viên, điểm)
+- Không ảnh hưởng dữ liệu cũ
+
+✅ **5. Phân tán tải (Load Distribution)**
+- Mỗi khoa có tài nguyên riêng
+- Khoa 1 có nhiều sinh viên không ảnh hưởng Khoa 2
+
+---
+
+#### 4.2.2. Site trung tâm cho ĐIỂM 1 (Site 5)
+
+**Lý do KHÔNG phân mảnh:**
+
+✅ **1. Yêu cầu báo cáo tổng hợp**
+```sql
+-- Truy vấn cần tất cả điểm 1:
+SELECT AVG(diem1) FROM dangky_diem1;  
+-- Nếu phân mảnh → cần join 2 sites → chậm
+```
+
+✅ **2. Dữ liệu nhỏ, ít thay đổi**
+- Điểm chuyên cần chỉ nhập 1 lần/học kỳ
+- 180 bản ghi không gây quá tải
+
+✅ **3. Tránh giao dịch phân tán phức tạp**
+- Cập nhật điểm 1 chỉ cần 1 transaction
+- Không cần SAGA pattern
+
+---
+
+#### 4.2.3. Mô hình phân tán: KHÔNG SAO CHÉP (No Replication)
+
+**Lý do chọn:**
+
+✅ **1. Đơn giản, dễ quản lý**
+- Không có vấn đề đồng bộ dữ liệu
+- Tránh phức tạp của consistency protocols
+
+✅ **2. Dữ liệu nhỏ**
+- Tổng 60 sinh viên, 20 lớp
+- Không cần sao chép để tối ưu
+
+✅ **3. Yêu cầu đề án**
+- Tập trung vào phân mảnh, không yêu cầu replication
+
+**Lưu ý:** Trong production, có thể thêm:
+- Read replicas cho báo cáo
+- Backup sites cho disaster recovery
+
+---
+
+### 4.3. Bảng tổng hợp phân mảnh
+
+| Bảng | Loại phân mảnh | Thuộc tính phân mảnh | Số phân mảnh | Sites |
+|------|----------------|----------------------|--------------|-------|
+| **LOP** | Ngang (Horizontal) | `khoa` | 2 | 1, 2 |
+| **SINHVIEN** | Ngang dẫn xuất | `mslop` (foreign key) | 2 | 3, 4 |
+| **DANGKY_DIEM1** | **KHÔNG phân mảnh** | - | 1 (toàn bộ) | 5 |
+| **DANGKY_DIEM23** | Ngang | `mssv` (prefix) | 2 | 6, 7 |
+
+---
+
+## 5. MÔ HÌNH TRIỂN KHAI
+
+### 5.1. Môi trường thực tế
+
+#### 5.1.1. Phần cứng
+
+**Cấu hình máy chủ (Development):**
+```
+- CPU: Apple M1/M2 hoặc Intel Core i5+
+- RAM: 16 GB
+- Storage: 50 GB available
+- Network: localhost (127.0.0.1)
+```
+
+**Lưu ý:** Trong môi trường production:
+- Mỗi site nên có máy chủ riêng
+- Sử dụng load balancer
+- Có backup server
+
+---
+
+#### 5.1.2. Phần mềm
+
+| Thành phần | Version | Vai trò |
+|------------|---------|---------|
+| **PostgreSQL** | 16-alpine | Database engine |
+| **Docker** | 24.0+ | Container runtime |
+| **Docker Compose** | 2.20+ | Multi-container orchestration |
+| **.NET SDK** | 9.0 | Backend API framework |
+| **Node.js** | 20 LTS | Frontend runtime |
+| **Next.js** | 15.0 | React framework |
+
+---
+
+#### 5.1.3. Chi tiết các Sites
+
+```yaml
+# File: docker-compose.yml
+
+# Site 1: Lớp Khoa 1
+postgres-lop-khoa-k1:
+  image: postgres:16-alpine
+  container_name: postgres-lop-khoa-k1
+  environment:
+    POSTGRES_DB: LopK1DB
+    POSTGRES_USER: admin
+    POSTGRES_PASSWORD: admin123
+  ports:
+    - "5439:5432"
+  volumes:
+    - ./postgres/01-init-lop-k1.sql:/docker-entrypoint-initdb.d/init.sql
+    - postgres-lop-k1-data:/var/lib/postgresql/data
+  networks:
+    - csdl-network
+  healthcheck:
+    test: ["CMD-SHELL", "pg_isready -U admin -d LopK1DB"]
+    interval: 10s
+    timeout: 5s
+    retries: 5
+
+# Site 2: Lớp Khoa 2
+postgres-lop-khoa-k2:
+  image: postgres:16-alpine
+  container_name: postgres-lop-khoa-k2
+  environment:
+    POSTGRES_DB: LopK2DB
+    POSTGRES_USER: admin
+    POSTGRES_PASSWORD: admin123
+  ports:
+    - "5433:5432"
+  volumes:
+    - ./postgres/02-init-lop-k2.sql:/docker-entrypoint-initdb.d/init.sql
+    - postgres-lop-k2-data:/var/lib/postgresql/data
+  networks:
+    - csdl-network
+
+# [Sites 3-7 tương tự...]
+```
+
+---
+
+### 5.2. Các bước triển khai
+
+#### 📋 **Bước 1: Chuẩn bị môi trường**
+
+```bash
+# 1.1. Cài đặt Docker
+brew install docker  # macOS
+# hoặc tải từ https://docker.com
+
+# 1.2. Kiểm tra Docker
+docker --version
+docker-compose --version
+
+# 1.3. Clone repository
+git clone <repository-url>
+cd CSDLPT-DOAN
+```
+
+---
+
+#### 📋 **Bước 2: Khởi tạo Databases**
+
+```bash
+# 2.1. Di chuyển vào thư mục Database
+cd Database
+
+# 2.2. Kiểm tra file SQL init
+ls postgres/
+# Output: 
+# 01-init-lop-k1.sql
+# 02-init-lop-k2.sql
+# 03-init-sinhvien-k1.sql
+# 04-init-sinhvien-k2.sql
+# 05-init-dangky-diem1.sql
+# 06-init-dangky-diem23-k1.sql
+# 07-init-dangky-diem23-k2.sql
+
+# 2.3. Khởi động Docker containers
+docker compose up -d
+
+# 2.4. Kiểm tra containers
+docker ps
+# Phải thấy 7 containers đang chạy
+
+# 2.5. Kiểm tra logs
+docker logs postgres-lop-khoa-k1
+```
+
+---
+
+#### 📋 **Bước 3: Xác thực dữ liệu**
+
+```bash
+# 3.1. Kiểm tra Site 1 (Lớp K1)
+docker exec postgres-lop-khoa-k1 psql -U admin -d LopK1DB -c "SELECT COUNT(*) FROM lop_k1;"
+# Output: 10
+
+# 3.2. Kiểm tra Site 2 (Lớp K2)
+docker exec postgres-lop-khoa-k2 psql -U admin -d LopK2DB -c "SELECT COUNT(*) FROM lop_k2;"
+# Output: 10
+
+# 3.3. Kiểm tra Site 3 (Sinh viên K1)
+docker exec postgres-sinhvien-khoa-k1 psql -U admin -d SinhVienK1DB -c "SELECT COUNT(*) FROM sinhvien_k1;"
+# Output: 30
+
+# 3.4. Kiểm tra Site 4 (Sinh viên K2)
+docker exec postgres-sinhvien-khoa-k2 psql -U admin -d SinhVienK2DB -c "SELECT COUNT(*) FROM sinhvien_k2;"
+# Output: 30
+
+# 3.5. Kiểm tra Site 5 (Điểm 1)
+docker exec postgres-dangky-diem1 psql -U admin -d DangKyDiem1DB -c "SELECT COUNT(*) FROM dangky_diem1;"
+# Output: 180
+
+# 3.6. Kiểm tra Site 6 (Điểm 2&3 K1)
+docker exec postgres-dangky-diem23-khoa-k1 psql -U admin -d DangKyDiem23K1DB -c "SELECT COUNT(*) FROM dangky_diem23_k1;"
+# Output: 90
+
+# 3.7. Kiểm tra Site 7 (Điểm 2&3 K2)
+docker exec postgres-dangky-diem23-khoa-k2 psql -U admin -d DangKyDiem23K2DB -c "SELECT COUNT(*) FROM dangky_diem23_k2;"
+# Output: 90
+```
+
+---
+
+#### 📋 **Bước 4: Khởi động Backend API**
+
+```bash
+# 4.1. Di chuyển vào thư mục API
+cd ../src/DistributedDbApi
+
+# 4.2. Kiểm tra file cấu hình
+cat appsettings.json
+# Xác nhận 7 connection strings đúng ports
+
+# 4.3. Restore dependencies
+dotnet restore
+
+# 4.4. Build project
+dotnet build
+
+# 4.5. Chạy API
+dotnet run
+
+# Output:
+# Now listening on: http://localhost:5000
+# Application started. Press Ctrl+C to shut down.
+```
+
+---
+
+#### 📋 **Bước 5: Khởi động Frontend**
+
+```bash
+# 5.1. Mở terminal mới, di chuyển vào frontend
+cd frontend
+
+# 5.2. Cài đặt dependencies
+npm install
+
+# 5.3. Chạy development server
+npm run dev
+
+# Output:
+# ▲ Next.js 15.0.0
+# - Local:        http://localhost:3000
+```
+
+---
+
+#### 📋 **Bước 6: Kiểm tra toàn hệ thống**
+
+```bash
+# 6.1. Mở trình duyệt
+open http://localhost:3000
+
+# 6.2. Kiểm tra danh sách lớp
+# Truy cập: http://localhost:3000/classes
+# Phải thấy 20 lớp (10 K1 + 10 K2)
+
+# 6.3. Test tạo lớp mới
+# Click "Thêm lớp mới"
+# Nhập: Tên = "Test Class", Khoa = K1
+# Mã lớp tự động: L22 (hoặc tiếp theo)
+
+# 6.4. Kiểm tra database
+docker exec postgres-lop-khoa-k1 psql -U admin -d LopK1DB -c "SELECT * FROM lop_k1 WHERE mslop='L22';"
+```
+
+---
+
+### 5.3. Hình ảnh kiến trúc đã triển khai
+
+#### 5.3.1. Sơ đồ mạng Docker
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│           Docker Network: csdl-network (172.18.0.0/16)          │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                  │
+│  ┌──────────────────┐  ┌──────────────────┐                    │
+│  │  LopK1DB         │  │  LopK2DB         │                    │
+│  │  Container       │  │  Container       │                    │
+│  │  IP: 172.18.0.2  │  │  IP: 172.18.0.3  │                    │
+│  │  Port: 5432→5439 │  │  Port: 5432→5433 │                    │
+│  └──────────────────┘  └──────────────────┘                    │
+│                                                                  │
+│  ┌──────────────────┐  ┌──────────────────┐                    │
+│  │ SinhVienK1DB     │  │ SinhVienK2DB     │                    │
+│  │ Container        │  │ Container        │                    │
+│  │ IP: 172.18.0.4   │  │ IP: 172.18.0.5   │                    │
+│  │ Port: 5432→5434  │  │ Port: 5432→5435  │                    │
+│  └──────────────────┘  └──────────────────┘                    │
+│                                                                  │
+│  ┌──────────────────┐  ┌──────────────────┐  ┌──────────────┐ │
+│  │ DangKyDiem1DB    │  │ DangKy23K1DB     │  │ DangKy23K2DB │ │
+│  │ Container        │  │ Container        │  │ Container    │ │
+│  │ IP: 172.18.0.6   │  │ IP: 172.18.0.7   │  │ IP:172.18.0.8│ │
+│  │ Port: 5432→5436  │  │ Port: 5432→5437  │  │ Port:5432→438│ │
+│  └──────────────────┘  └──────────────────┘  └──────────────┘ │
+│                                                                  │
+└─────────────────────────────────────────────────────────────────┘
+                              ▲
+                              │ TCP/IP
+                              │
+                    ┌─────────┴─────────┐
+                    │   Host Machine    │
+                    │  localhost:5439   │
+                    │  localhost:5433   │
+                    │  localhost:543x   │
+                    └───────────────────┘
+```
+
+---
+
+#### 5.3.2. Luồng dữ liệu khi tạo lớp mới
+
+```
+┌─────────┐                 ┌─────────┐                 ┌─────────┐
+│ Browser │                 │ Next.js │                 │ .NET API│
+└────┬────┘                 └────┬────┘                 └────┬────┘
+     │                           │                           │
+     │ POST /api/classes         │                           │
+     │ {tenlop, khoa}            │                           │
+     ├──────────────────────────>│                           │
+     │                           │                           │
+     │                           │ POST /api/classes         │
+     │                           │ {tenlop, khoa}            │
+     │                           ├──────────────────────────>│
+     │                           │                           │
+     │                           │                           │ 1. Query K1 & K2
+     │                           │                           ├──────────┐
+     │                           │                           │   Find   │
+     │                           │                           │   Max    │
+     │                           │                           │   (L20)  │
+     │                           │                           │<─────────┘
+     │                           │                           │
+     │                           │                           │ 2. Generate L21
+     │                           │                           ├──────────┐
+     │                           │                           │  Next ID │
+     │                           │                           │<─────────┘
+     │                           │                           │
+     │                           │                           │ 3. Insert into K1 or K2
+     │                           │                           ├──────────┐
+     │                           │                           │  BEGIN   │
+     │                           │                           │  INSERT  │
+     │                           │                           │  COMMIT  │
+     │                           │                           │<─────────┘
+     │                           │                           │
+     │                           │ 200 OK                    │
+     │                           │ {mslop: L21, ...}         │
+     │                           │<──────────────────────────┤
+     │                           │                           │
+     │ 200 OK                    │                           │
+     │ {mslop: L21, ...}         │                           │
+     │<──────────────────────────┤                           │
+     │                           │                           │
+```
+
+---
+
+#### 5.3.3. SAGA Pattern cho Distributed Transaction
+
+**Ví dụ: Tạo sinh viên mới**
+
+```
+┌────────────────────────────────────────────────────────────────┐
+│              SAGA: Create Student Transaction                  │
+└────────────────────────────────────────────────────────────────┘
+
+Step 1: Validate Class Exists
+┌─────────────┐
+│  Query Lop  │  ← Site 1 (if K1) or Site 2 (if K2)
+│  by mslop   │
+└──────┬──────┘
+       │
+       ▼
+   [Success] → Continue
+   [Fail]    → Rollback (No DB changes yet)
+
+Step 2: Insert Student
+┌─────────────┐
+│ Insert SV   │  ← Site 3 (if K1) or Site 4 (if K2)
+│ BEGIN       │
+│ INSERT      │
+│ COMMIT      │
+└──────┬──────┘
+       │
+       ▼
+   [Success] → Continue
+   [Fail]    → Rollback (No compensation needed)
+
+Step 3: Initialize Scores (Optional)
+┌─────────────┐
+│ Insert Diem │  ← Site 5, 6, or 7
+│ BEGIN       │
+│ INSERT      │
+│ COMMIT      │
+└──────┬──────┘
+       │
+       ▼
+   [Success] → Complete
+   [Fail]    → Compensate: Delete Student from Step 2
+
+┌────────────────────────────────────────────────────────────────┐
+│  Compensation Logic:                                           │
+│  - If Step 3 fails → Execute DELETE student from Site 3/4     │
+│  - Use try-catch with explicit compensation commands          │
+└────────────────────────────────────────────────────────────────┘
+```
+
+---
+
+#### 5.3.4. Cấu trúc thư mục dự án
+
+```
+CSDLPT-DOAN/
+├── README.md                          ← File này
+├── Database/
+│   ├── docker-compose.yml             ← Cấu hình 7 containers
+│   └── postgres/
+│       ├── 01-init-lop-k1.sql         ← Seed data Site 1
+│       ├── 02-init-lop-k2.sql         ← Seed data Site 2
+│       ├── 03-init-sinhvien-k1.sql    ← Seed data Site 3
+│       ├── 04-init-sinhvien-k2.sql    ← Seed data Site 4
+│       ├── 05-init-dangky-diem1.sql   ← Seed data Site 5
+│       ├── 06-init-dangky-diem23-k1.sql ← Seed data Site 6
+│       └── 07-init-dangky-diem23-k2.sql ← Seed data Site 7
+│
+├── src/
+│   └── DistributedDbApi/              ← Backend .NET 9
+│       ├── Program.cs                 ← Entry point
+│       ├── appsettings.json           ← 7 Connection strings
+│       ├── Data/
+│       │   ├── LopK1DbContext.cs      ← EF Core context Site 1
+│       │   ├── LopK2DbContext.cs      ← EF Core context Site 2
+│       │   ├── SinhVienK1DbContext.cs ← EF Core context Site 3
+│       │   ├── SinhVienK2DbContext.cs ← EF Core context Site 4
+│       │   └── ...                    ← Contexts Sites 5-7
+│       ├── Models/
+│       │   ├── LopK1.cs               ← Entity model
+│       │   ├── SinhVienK1.cs          ← Entity model
+│       │   └── ...
+│       ├── Services/
+│       │   ├── ClassService.cs        ← Business logic (SAGA)
+│       │   ├── StudentService.cs      ← Business logic
+│       │   └── RegistrationService.cs ← Business logic
+│       └── Controllers/
+│           ├── ClassController.cs     ← API endpoints
+│           ├── StudentController.cs   ← API endpoints
+│           └── ...
+│
+└── frontend/                          ← Next.js 15
+    ├── package.json
+    ├── next.config.js
+    ├── app/
+    │   ├── layout.tsx                 ← Root layout
+    │   ├── page.tsx                   ← Home page
+    │   └── classes/
+    │       └── page.tsx               ← Classes CRUD page
+    └── components/
+        ├── ClassCard.tsx              ← UI component
+        └── SearchBar.tsx              ← UI component
+```
+
+---
+
+## 6. HƯỚNG DẪN CÀI ĐẶT
+
+### 6.1. Yêu cầu hệ thống
+
+- **OS**: macOS 10.15+, Windows 10+, Ubuntu 20.04+
+- **Docker**: 24.0+
+- **Docker Compose**: 2.20+
+- **.NET SDK**: 9.0+
+- **Node.js**: 20 LTS
+- **RAM**: 8 GB minimum, 16 GB recommended
+- **Storage**: 10 GB free space
+
+---
+
+### 6.2. Cài đặt nhanh
+
+```bash
+# 1. Clone repository
+git clone <repository-url>
+cd CSDLPT-DOAN
+
+# 2. Khởi động databases
+cd Database
+docker compose up -d
+
+# 3. Khởi động backend (terminal mới)
+cd ../src/DistributedDbApi
+dotnet restore
+dotnet run
+
+# 4. Khởi động frontend (terminal mới)
+cd ../../frontend
+npm install
+npm run dev
+
+# 5. Truy cập ứng dụng
+open http://localhost:3000
+```
+
+---
+
+### 6.3. Xử lý sự cố
+
+#### ❌ **Lỗi: Container không khởi động**
+
+```bash
+# Kiểm tra logs
+docker logs postgres-lop-khoa-k1
+
+# Xóa và tạo lại
+docker compose down -v
+docker compose up -d
+```
+
+#### ❌ **Lỗi: Port đã được sử dụng**
+
+```bash
+# Tìm process đang dùng port 5439
+lsof -i :5439
+
+# Kill process
+kill -9 <PID>
+
+# Hoặc đổi port trong docker-compose.yml
+# "5440:5432"  # Thay vì 5439
+```
+
+#### ❌ **Lỗi: Backend không kết nối DB**
+
+```bash
+# Kiểm tra connection string trong appsettings.json
+cat src/DistributedDbApi/appsettings.json
+
+# Đảm bảo port đúng:
+# localhost:5439 → Site 1
+# localhost:5433 → Site 2
+# ...
+```
+
+---
+
+### 6.4. Dừng hệ thống
+
+```bash
+# Dừng frontend (Ctrl+C trong terminal)
+^C
+
+# Dừng backend (Ctrl+C trong terminal)
+^C
+
+# Dừng databases
+cd Database
+docker compose down
+
+# Xóa hoàn toàn (bao gồm volumes)
+docker compose down -v
+```
+
+---
+
+## 7. KẾT LUẬN
+
+### 7.1. Đánh giá hệ thống
+
+✅ **Ưu điểm:**
+- Phân tán dữ liệu rõ ràng theo khoa
+- Giảm chi phí truy vấn (80% truy vấn local)
+- Tăng tính sẵn sàng (1 site down, sites khác vẫn hoạt động)
+- Dễ mở rộng (thêm khoa mới)
+- Sử dụng SAGA Pattern cho distributed transactions
+
+✅ **Nhược điểm:**
+- Truy vấn toàn cục cần join nhiều sites (chậm hơn)
+- Phức tạp hơn database tập trung
+- Không có replication (single point of failure)
+
+---
+
+### 7.2. Hướng phát triển
+
+🔮 **Tương lai:**
+- [ ] Thêm read replicas cho báo cáo
+- [ ] Implement caching (Redis)
+- [ ] Thêm authentication & authorization
+- [ ] Monitoring & logging (Prometheus, Grafana)
+- [ ] Auto-scaling containers
+- [ ] Backup & disaster recovery
+
+---
+
+### 7.3. Tài liệu tham khảo
+
+- [PostgreSQL Documentation](https://www.postgresql.org/docs/)
+- [Docker Compose Documentation](https://docs.docker.com/compose/)
+- [.NET Entity Framework Core](https://docs.microsoft.com/ef/core/)
+- [Next.js Documentation](https://nextjs.org/docs)
+- [SAGA Pattern](https://microservices.io/patterns/data/saga.html)
+
+---
+
+## 📞 LIÊN HỆ
+
+- **Tác giả**: [Your Name]
+- **Email**: [your.email@example.com]
+- **GitHub**: [github.com/yourusername]
+
+---
+
+**© 2025 - Distributed Database Project - All Rights Reserved**

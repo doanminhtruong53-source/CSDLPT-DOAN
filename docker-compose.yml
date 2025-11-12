@@ -1,0 +1,160 @@
+services:
+  # Site 1: Quản lý thông tin LỚP của Khoa K1 (CNTT)
+  postgres-lop-khoa-k1:
+    image: postgres:16-alpine
+    container_name: postgres-lop-khoa-k1
+    environment:
+      POSTGRES_PASSWORD: YourStrong@Passw0rd
+      POSTGRES_USER: admin
+      POSTGRES_DB: LopK1DB
+    ports:
+      - "5439:5432"
+    volumes:
+      - ./Database/postgres/01-init-lop-k1.sql:/docker-entrypoint-initdb.d/01-init-lop-k1.sql
+      - postgres-lop-k1-data:/var/lib/postgresql/data
+    networks:
+      - csdl-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U admin -d LopK1DB"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Site 2: Quản lý thông tin LỚP của Khoa K2 (Kinh tế)
+  postgres-lop-khoa-k2:
+    image: postgres:16-alpine
+    container_name: postgres-lop-khoa-k2
+    environment:
+      POSTGRES_PASSWORD: YourStrong@Passw0rd
+      POSTGRES_USER: admin
+      POSTGRES_DB: LopK2DB
+    ports:
+      - "5433:5432"
+    volumes:
+      - ./Database/postgres/02-init-lop-k2.sql:/docker-entrypoint-initdb.d/02-init-lop-k2.sql
+      - postgres-lop-k2-data:/var/lib/postgresql/data
+    networks:
+      - csdl-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U admin -d LopK2DB"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Site 3: Quản lý thông tin SINH VIÊN Khoa K1
+  postgres-sinhvien-khoa-k1:
+    image: postgres:16-alpine
+    container_name: postgres-sinhvien-khoa-k1
+    environment:
+      POSTGRES_PASSWORD: YourStrong@Passw0rd
+      POSTGRES_USER: admin
+      POSTGRES_DB: SinhVienK1DB
+    ports:
+      - "5434:5432"
+    volumes:
+      - ./Database/postgres/03-init-sinhvien-k1.sql:/docker-entrypoint-initdb.d/03-init-sinhvien-k1.sql
+      - postgres-sinhvien-k1-data:/var/lib/postgresql/data
+    networks:
+      - csdl-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U admin -d SinhVienK1DB"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Site 4: Quản lý thông tin SINH VIÊN Khoa K2
+  postgres-sinhvien-khoa-k2:
+    image: postgres:16-alpine
+    container_name: postgres-sinhvien-khoa-k2
+    environment:
+      POSTGRES_PASSWORD: YourStrong@Passw0rd
+      POSTGRES_USER: admin
+      POSTGRES_DB: SinhVienK2DB
+    ports:
+      - "5435:5432"
+    volumes:
+      - ./Database/postgres/04-init-sinhvien-k2.sql:/docker-entrypoint-initdb.d/04-init-sinhvien-k2.sql
+      - postgres-sinhvien-k2-data:/var/lib/postgresql/data
+    networks:
+      - csdl-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U admin -d SinhVienK2DB"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Site 5: Mảnh dọc ĐĂNG KÝ - Điểm lần 1 (tất cả sinh viên)
+  postgres-dangky-diem1:
+    image: postgres:16-alpine
+    container_name: postgres-dangky-diem1
+    environment:
+      POSTGRES_PASSWORD: YourStrong@Passw0rd
+      POSTGRES_USER: admin
+      POSTGRES_DB: DangKyDiem1DB
+    ports:
+      - "5436:5432"
+    volumes:
+      - ./Database/postgres/05-init-dangky-diem1.sql:/docker-entrypoint-initdb.d/05-init-dangky-diem1.sql
+      - postgres-dangky-diem1-data:/var/lib/postgresql/data
+    networks:
+      - csdl-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U admin -d DangKyDiem1DB"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Site 6: Mảnh dọc+ngang ĐĂNG KÝ - Điểm lần 2,3 Khoa K1
+  postgres-dangky-diem23-khoa-k1:
+    image: postgres:16-alpine
+    container_name: postgres-dangky-diem23-khoa-k1
+    environment:
+      POSTGRES_PASSWORD: YourStrong@Passw0rd
+      POSTGRES_USER: admin
+      POSTGRES_DB: DangKyDiem23K1DB
+    ports:
+      - "5437:5432"
+    volumes:
+      - ./Database/postgres/06-init-dangky-diem23-k1.sql:/docker-entrypoint-initdb.d/06-init-dangky-diem23-k1.sql
+      - postgres-dangky-diem23-k1-data:/var/lib/postgresql/data
+    networks:
+      - csdl-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U admin -d DangKyDiem23K1DB"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Site 7: Mảnh dọc+ngang ĐĂNG KÝ - Điểm lần 2,3 Khoa K2
+  postgres-dangky-diem23-khoa-k2:
+    image: postgres:16-alpine
+    container_name: postgres-dangky-diem23-khoa-k2
+    environment:
+      POSTGRES_PASSWORD: YourStrong@Passw0rd
+      POSTGRES_USER: admin
+      POSTGRES_DB: DangKyDiem23K2DB
+    ports:
+      - "5438:5432"
+    volumes:
+      - ./Database/postgres/07-init-dangky-diem23-k2.sql:/docker-entrypoint-initdb.d/07-init-dangky-diem23-k2.sql
+      - postgres-dangky-diem23-k2-data:/var/lib/postgresql/data
+    networks:
+      - csdl-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U admin -d DangKyDiem23K2DB"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  postgres-lop-k1-data:
+  postgres-lop-k2-data:
+  postgres-sinhvien-k1-data:
+  postgres-sinhvien-k2-data:
+  postgres-dangky-diem1-data:
+  postgres-dangky-diem23-k1-data:
+  postgres-dangky-diem23-k2-data:
+
+networks:
+  csdl-network:
+    driver: bridge

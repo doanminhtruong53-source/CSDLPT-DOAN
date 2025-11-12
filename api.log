@@ -1,0 +1,670 @@
+Using launch settings from src/DistributedDbApi/Properties/launchSettings.json...
+Building...
+[04:29:15 INF] Starting Distributed Database API...
+[04:29:15 INF] Now listening on: http://localhost:5020
+[04:29:15 INF] Application started. Press Ctrl+C to shut down.
+[04:29:15 INF] Hosting environment: Development
+[04:29:15 INF] Content root path: /Users/bbysharp/Documents/CSDL-PT/CSDLPT-DOAN/src/DistributedDbApi
+[04:29:33 INF] Request starting HTTP/1.1 POST http://localhost:5020/api/students - application/json 151
+[04:29:33 INF] Executing endpoint 'DistributedDbApi.Controllers.StudentsController.CreateStudent (DistributedDbApi)'
+[04:29:33 INF] Route matched with {action = "CreateStudent", controller = "Students"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] CreateStudent(DistributedDbApi.DTOs.CreateStudentDto, System.Threading.CancellationToken) on controller DistributedDbApi.Controllers.StudentsController (DistributedDbApi).
+[04:29:33 INF] Bắt đầu tạo sinh viên SV999
+[04:29:33 INF] Executed DbCommand (25ms) [Parameters=[@__mssv_0='?'], CommandType='Text', CommandTimeout='30']
+SELECT s.mssv, s.hocbong, s.hoten, s.mslop, s.ngaysinh, s.phai
+FROM sinhvien_k1 AS s
+WHERE s.mssv = @__mssv_0
+LIMIT 1
+[04:29:33 INF] Executed DbCommand (25ms) [Parameters=[@__mssv_0='?'], CommandType='Text', CommandTimeout='30']
+SELECT s.mssv, s.hocbong, s.hoten, s.mslop, s.ngaysinh, s.phai
+FROM sinhvien_k2 AS s
+WHERE s.mssv = @__mssv_0
+LIMIT 1
+[04:29:33 WRN] Sinh viên SV999 không tồn tại
+[04:29:33 INF] Executed DbCommand (2ms) [Parameters=[@__mslop_0='?'], CommandType='Text', CommandTimeout='30']
+SELECT l.mslop, l.khoa, l.tenlop
+FROM lop_k1 AS l
+WHERE l.mslop = @__mslop_0
+LIMIT 1
+[04:29:33 ERR] Failed executing DbCommand (3ms) [Parameters=[@p0='?', @p1='?' (DbType = Decimal), @p2='?', @p3='?', @p4='?' (DbType = DateTime), @p5='?'], CommandType='Text', CommandTimeout='30']
+INSERT INTO sinhvien_k1 (mssv, hocbong, hoten, mslop, ngaysinh, phai)
+VALUES (@p0, @p1, @p2, @p3, @p4, @p5);
+[04:29:33 ERR] An exception occurred in the database while saving changes for context type 'DistributedDbApi.Data.DbContexts.SinhVienK1DbContext'.
+Microsoft.EntityFrameworkCore.DbUpdateException: An error occurred while saving the entity changes. See the inner exception for details.
+ ---> System.ArgumentException: Cannot write DateTime with Kind=Unspecified to PostgreSQL type 'timestamp with time zone', only UTC is supported. Note that it's not possible to mix DateTimes with different Kinds in an array, range, or multirange. (Parameter 'value')
+   at Npgsql.Internal.Converters.DateTimeConverterResolver`1.Get(DateTime value, Nullable`1 expectedPgTypeId, Boolean validateOnly)
+   at Npgsql.Internal.Converters.DateTimeConverterResolver.<>c.<CreateResolver>b__0_0(DateTimeConverterResolver`1 resolver, DateTime value, Nullable`1 expectedPgTypeId)
+   at Npgsql.Internal.Converters.DateTimeConverterResolver`1.Get(T value, Nullable`1 expectedPgTypeId)
+   at Npgsql.Internal.PgConverterResolver`1.GetAsObjectInternal(PgTypeInfo typeInfo, Object value, Nullable`1 expectedPgTypeId)
+   at Npgsql.Internal.PgResolverTypeInfo.GetResolutionAsObject(Object value, Nullable`1 expectedPgTypeId)
+   at Npgsql.Internal.PgTypeInfo.GetObjectResolution(Object value)
+   at Npgsql.NpgsqlParameter.ResolveConverter(PgTypeInfo typeInfo)
+   at Npgsql.NpgsqlParameter.ResolveTypeInfo(PgSerializerOptions options)
+   at Npgsql.NpgsqlParameterCollection.ProcessParameters(PgSerializerOptions options, Boolean validateValues, CommandType commandType)
+   at Npgsql.NpgsqlCommand.ExecuteReader(Boolean async, CommandBehavior behavior, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(Boolean async, CommandBehavior behavior, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteDbDataReaderAsync(CommandBehavior behavior, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)
+   --- End of inner exception stack trace ---
+   at Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalDatabase.SaveChangesAsync(IList`1 entries, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(IList`1 entriesToSave, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(StateManager stateManager, Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.DbContext.SaveChangesAsync(Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
+Microsoft.EntityFrameworkCore.DbUpdateException: An error occurred while saving the entity changes. See the inner exception for details.
+ ---> System.ArgumentException: Cannot write DateTime with Kind=Unspecified to PostgreSQL type 'timestamp with time zone', only UTC is supported. Note that it's not possible to mix DateTimes with different Kinds in an array, range, or multirange. (Parameter 'value')
+   at Npgsql.Internal.Converters.DateTimeConverterResolver`1.Get(DateTime value, Nullable`1 expectedPgTypeId, Boolean validateOnly)
+   at Npgsql.Internal.Converters.DateTimeConverterResolver.<>c.<CreateResolver>b__0_0(DateTimeConverterResolver`1 resolver, DateTime value, Nullable`1 expectedPgTypeId)
+   at Npgsql.Internal.Converters.DateTimeConverterResolver`1.Get(T value, Nullable`1 expectedPgTypeId)
+   at Npgsql.Internal.PgConverterResolver`1.GetAsObjectInternal(PgTypeInfo typeInfo, Object value, Nullable`1 expectedPgTypeId)
+   at Npgsql.Internal.PgResolverTypeInfo.GetResolutionAsObject(Object value, Nullable`1 expectedPgTypeId)
+   at Npgsql.Internal.PgTypeInfo.GetObjectResolution(Object value)
+   at Npgsql.NpgsqlParameter.ResolveConverter(PgTypeInfo typeInfo)
+   at Npgsql.NpgsqlParameter.ResolveTypeInfo(PgSerializerOptions options)
+   at Npgsql.NpgsqlParameterCollection.ProcessParameters(PgSerializerOptions options, Boolean validateValues, CommandType commandType)
+   at Npgsql.NpgsqlCommand.ExecuteReader(Boolean async, CommandBehavior behavior, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(Boolean async, CommandBehavior behavior, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteDbDataReaderAsync(CommandBehavior behavior, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)
+   --- End of inner exception stack trace ---
+   at Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalDatabase.SaveChangesAsync(IList`1 entries, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(IList`1 entriesToSave, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(StateManager stateManager, Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.DbContext.SaveChangesAsync(Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
+[04:29:33 ERR] Lỗi khi tạo sinh viên SV999
+Microsoft.EntityFrameworkCore.DbUpdateException: An error occurred while saving the entity changes. See the inner exception for details.
+ ---> System.ArgumentException: Cannot write DateTime with Kind=Unspecified to PostgreSQL type 'timestamp with time zone', only UTC is supported. Note that it's not possible to mix DateTimes with different Kinds in an array, range, or multirange. (Parameter 'value')
+   at Npgsql.Internal.Converters.DateTimeConverterResolver`1.Get(DateTime value, Nullable`1 expectedPgTypeId, Boolean validateOnly)
+   at Npgsql.Internal.Converters.DateTimeConverterResolver.<>c.<CreateResolver>b__0_0(DateTimeConverterResolver`1 resolver, DateTime value, Nullable`1 expectedPgTypeId)
+   at Npgsql.Internal.Converters.DateTimeConverterResolver`1.Get(T value, Nullable`1 expectedPgTypeId)
+   at Npgsql.Internal.PgConverterResolver`1.GetAsObjectInternal(PgTypeInfo typeInfo, Object value, Nullable`1 expectedPgTypeId)
+   at Npgsql.Internal.PgResolverTypeInfo.GetResolutionAsObject(Object value, Nullable`1 expectedPgTypeId)
+   at Npgsql.Internal.PgTypeInfo.GetObjectResolution(Object value)
+   at Npgsql.NpgsqlParameter.ResolveConverter(PgTypeInfo typeInfo)
+   at Npgsql.NpgsqlParameter.ResolveTypeInfo(PgSerializerOptions options)
+   at Npgsql.NpgsqlParameterCollection.ProcessParameters(PgSerializerOptions options, Boolean validateValues, CommandType commandType)
+   at Npgsql.NpgsqlCommand.ExecuteReader(Boolean async, CommandBehavior behavior, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(Boolean async, CommandBehavior behavior, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteDbDataReaderAsync(CommandBehavior behavior, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)
+   --- End of inner exception stack trace ---
+   at Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalDatabase.SaveChangesAsync(IList`1 entries, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(IList`1 entriesToSave, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(StateManager stateManager, Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.DbContext.SaveChangesAsync(Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.DbContext.SaveChangesAsync(Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
+   at DistributedDbApi.Services.StudentService.CreateStudentAsync(CreateStudentDto dto, CancellationToken ct) in /Users/bbysharp/Documents/CSDL-PT/CSDLPT-DOAN/src/DistributedDbApi/Services/StudentService.cs:line 229
+[04:29:33 INF] Executing BadRequestObjectResult, writing value of type 'DistributedDbApi.DTOs.OperationResultDto'.
+[04:29:34 INF] Executed action DistributedDbApi.Controllers.StudentsController.CreateStudent (DistributedDbApi) in 631.8969ms
+[04:29:34 INF] Executed endpoint 'DistributedDbApi.Controllers.StudentsController.CreateStudent (DistributedDbApi)'
+[04:29:34 INF] HTTP POST /api/students responded 400 in 643.8046 ms
+[04:29:34 INF] Request finished HTTP/1.1 POST http://localhost:5020/api/students - 400 null application/json; charset=utf-8 661.3883ms
+[04:29:53 INF] Request starting HTTP/1.1 GET http://localhost:5020/api/reports/scholarships?khoa=K1&top=5 - null null
+[04:29:53 INF] Executing endpoint 'DistributedDbApi.Controllers.ReportsController.GetScholarships (DistributedDbApi)'
+[04:29:53 INF] Route matched with {action = "GetScholarships", controller = "Reports"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] GetScholarships(System.String, System.Decimal, Int32, System.Threading.CancellationToken) on controller DistributedDbApi.Controllers.ReportsController (DistributedDbApi).
+[04:29:53 INF] Executed DbCommand (4ms) [Parameters=[@__minAmount_0='?' (DbType = Decimal), @__p_1='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+SELECT s.mssv, s.hocbong, s.hoten, s.mslop, s.ngaysinh, s.phai
+FROM sinhvien_k1 AS s
+WHERE s.hocbong >= @__minAmount_0
+ORDER BY s.hocbong DESC
+LIMIT @__p_1
+[04:29:53 INF] Executing OkObjectResult, writing value of type 'DistributedDbApi.DTOs.ApiResponse`1[[System.Collections.Generic.List`1[[DistributedDbApi.DTOs.ScholarshipReportDto, DistributedDbApi, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]], System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]'.
+[04:29:53 INF] Executed action DistributedDbApi.Controllers.ReportsController.GetScholarships (DistributedDbApi) in 21.346ms
+[04:29:53 INF] Executed endpoint 'DistributedDbApi.Controllers.ReportsController.GetScholarships (DistributedDbApi)'
+[04:29:53 INF] HTTP GET /api/reports/scholarships responded 200 in 23.9594 ms
+[04:29:53 INF] Request finished HTTP/1.1 GET http://localhost:5020/api/reports/scholarships?khoa=K1&top=5 - 200 null application/json; charset=utf-8 26.8544ms
+[04:30:04 INF] Request starting HTTP/1.1 GET http://localhost:5020/api/reports/averages?khoa=K1 - null null
+[04:30:04 INF] Executing endpoint 'DistributedDbApi.Controllers.ReportsController.GetAverageScores (DistributedDbApi)'
+[04:30:04 INF] Route matched with {action = "GetAverageScores", controller = "Reports"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] GetAverageScores(System.String, System.String, System.Threading.CancellationToken) on controller DistributedDbApi.Controllers.ReportsController (DistributedDbApi).
+[04:30:04 INF] Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+SELECT d.mssv, d.msmon, d.diem1
+FROM dangky_diem1 AS d
+[04:30:04 INF] Executed DbCommand (1ms) [Parameters=[@__subject_0='?'], CommandType='Text', CommandTimeout='30']
+SELECT d.mssv, d.msmon, d.diem2, d.diem3
+FROM dangky_diem23_k1 AS d
+WHERE d.msmon = @__subject_0
+[04:30:04 INF] Executed DbCommand (1ms) [Parameters=[@__subject_0='?'], CommandType='Text', CommandTimeout='30']
+SELECT d.mssv, d.msmon, d.diem2, d.diem3
+FROM dangky_diem23_k2 AS d
+WHERE d.msmon = @__subject_0
+[04:30:04 INF] Executed DbCommand (1ms) [Parameters=[@__subject_0='?'], CommandType='Text', CommandTimeout='30']
+SELECT d.mssv, d.msmon, d.diem2, d.diem3
+FROM dangky_diem23_k1 AS d
+WHERE d.msmon = @__subject_0
+[04:30:04 INF] Executed DbCommand (0ms) [Parameters=[@__subject_0='?'], CommandType='Text', CommandTimeout='30']
+SELECT d.mssv, d.msmon, d.diem2, d.diem3
+FROM dangky_diem23_k2 AS d
+WHERE d.msmon = @__subject_0
+[04:30:04 INF] Executed DbCommand (0ms) [Parameters=[@__subject_0='?'], CommandType='Text', CommandTimeout='30']
+SELECT d.mssv, d.msmon, d.diem2, d.diem3
+FROM dangky_diem23_k1 AS d
+WHERE d.msmon = @__subject_0
+[04:30:04 INF] Executed DbCommand (0ms) [Parameters=[@__subject_0='?'], CommandType='Text', CommandTimeout='30']
+SELECT d.mssv, d.msmon, d.diem2, d.diem3
+FROM dangky_diem23_k2 AS d
+WHERE d.msmon = @__subject_0
+[04:30:04 INF] Executed DbCommand (0ms) [Parameters=[@__subject_0='?'], CommandType='Text', CommandTimeout='30']
+SELECT d.mssv, d.msmon, d.diem2, d.diem3
+FROM dangky_diem23_k1 AS d
+WHERE d.msmon = @__subject_0
+[04:30:04 INF] Executed DbCommand (0ms) [Parameters=[@__subject_0='?'], CommandType='Text', CommandTimeout='30']
+SELECT d.mssv, d.msmon, d.diem2, d.diem3
+FROM dangky_diem23_k2 AS d
+WHERE d.msmon = @__subject_0
+[04:30:04 INF] Executed DbCommand (0ms) [Parameters=[@__subject_0='?'], CommandType='Text', CommandTimeout='30']
+SELECT d.mssv, d.msmon, d.diem2, d.diem3
+FROM dangky_diem23_k1 AS d
+WHERE d.msmon = @__subject_0
+[04:30:04 INF] Executed DbCommand (0ms) [Parameters=[@__subject_0='?'], CommandType='Text', CommandTimeout='30']
+SELECT d.mssv, d.msmon, d.diem2, d.diem3
+FROM dangky_diem23_k2 AS d
+WHERE d.msmon = @__subject_0
+[04:30:04 INF] Executed DbCommand (0ms) [Parameters=[@__subject_0='?'], CommandType='Text', CommandTimeout='30']
+SELECT d.mssv, d.msmon, d.diem2, d.diem3
+FROM dangky_diem23_k1 AS d
+WHERE d.msmon = @__subject_0
+[04:30:04 INF] Executed DbCommand (0ms) [Parameters=[@__subject_0='?'], CommandType='Text', CommandTimeout='30']
+SELECT d.mssv, d.msmon, d.diem2, d.diem3
+FROM dangky_diem23_k2 AS d
+WHERE d.msmon = @__subject_0
+[04:30:04 INF] Executed DbCommand (0ms) [Parameters=[@__subject_0='?'], CommandType='Text', CommandTimeout='30']
+SELECT d.mssv, d.msmon, d.diem2, d.diem3
+FROM dangky_diem23_k1 AS d
+WHERE d.msmon = @__subject_0
+[04:30:04 INF] Executed DbCommand (0ms) [Parameters=[@__subject_0='?'], CommandType='Text', CommandTimeout='30']
+SELECT d.mssv, d.msmon, d.diem2, d.diem3
+FROM dangky_diem23_k2 AS d
+WHERE d.msmon = @__subject_0
+[04:30:04 INF] Executed DbCommand (0ms) [Parameters=[@__subject_0='?'], CommandType='Text', CommandTimeout='30']
+SELECT d.mssv, d.msmon, d.diem2, d.diem3
+FROM dangky_diem23_k1 AS d
+WHERE d.msmon = @__subject_0
+[04:30:04 INF] Executed DbCommand (0ms) [Parameters=[@__subject_0='?'], CommandType='Text', CommandTimeout='30']
+SELECT d.mssv, d.msmon, d.diem2, d.diem3
+FROM dangky_diem23_k2 AS d
+WHERE d.msmon = @__subject_0
+[04:30:04 INF] Executed DbCommand (0ms) [Parameters=[@__subject_0='?'], CommandType='Text', CommandTimeout='30']
+SELECT d.mssv, d.msmon, d.diem2, d.diem3
+FROM dangky_diem23_k1 AS d
+WHERE d.msmon = @__subject_0
+[04:30:04 INF] Executed DbCommand (0ms) [Parameters=[@__subject_0='?'], CommandType='Text', CommandTimeout='30']
+SELECT d.mssv, d.msmon, d.diem2, d.diem3
+FROM dangky_diem23_k2 AS d
+WHERE d.msmon = @__subject_0
+[04:30:04 INF] Executed DbCommand (0ms) [Parameters=[@__subject_0='?'], CommandType='Text', CommandTimeout='30']
+SELECT d.mssv, d.msmon, d.diem2, d.diem3
+FROM dangky_diem23_k1 AS d
+WHERE d.msmon = @__subject_0
+[04:30:04 INF] Executed DbCommand (0ms) [Parameters=[@__subject_0='?'], CommandType='Text', CommandTimeout='30']
+SELECT d.mssv, d.msmon, d.diem2, d.diem3
+FROM dangky_diem23_k2 AS d
+WHERE d.msmon = @__subject_0
+[04:30:04 INF] Executed DbCommand (0ms) [Parameters=[@__subject_0='?'], CommandType='Text', CommandTimeout='30']
+SELECT d.mssv, d.msmon, d.diem2, d.diem3
+FROM dangky_diem23_k1 AS d
+WHERE d.msmon = @__subject_0
+[04:30:04 INF] Executed DbCommand (0ms) [Parameters=[@__subject_0='?'], CommandType='Text', CommandTimeout='30']
+SELECT d.mssv, d.msmon, d.diem2, d.diem3
+FROM dangky_diem23_k2 AS d
+WHERE d.msmon = @__subject_0
+[04:30:04 INF] Executed DbCommand (0ms) [Parameters=[@__subject_0='?'], CommandType='Text', CommandTimeout='30']
+SELECT d.mssv, d.msmon, d.diem2, d.diem3
+FROM dangky_diem23_k1 AS d
+WHERE d.msmon = @__subject_0
+[04:30:04 INF] Executed DbCommand (0ms) [Parameters=[@__subject_0='?'], CommandType='Text', CommandTimeout='30']
+SELECT d.mssv, d.msmon, d.diem2, d.diem3
+FROM dangky_diem23_k2 AS d
+WHERE d.msmon = @__subject_0
+[04:30:04 INF] Executed DbCommand (0ms) [Parameters=[@__subject_0='?'], CommandType='Text', CommandTimeout='30']
+SELECT d.mssv, d.msmon, d.diem2, d.diem3
+FROM dangky_diem23_k1 AS d
+WHERE d.msmon = @__subject_0
+[04:30:04 INF] Executed DbCommand (0ms) [Parameters=[@__subject_0='?'], CommandType='Text', CommandTimeout='30']
+SELECT d.mssv, d.msmon, d.diem2, d.diem3
+FROM dangky_diem23_k2 AS d
+WHERE d.msmon = @__subject_0
+[04:30:04 INF] Executing OkObjectResult, writing value of type 'DistributedDbApi.DTOs.ApiResponse`1[[System.Collections.Generic.List`1[[DistributedDbApi.DTOs.AverageScoreReportDto, DistributedDbApi, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]], System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]'.
+[04:30:04 INF] Executed action DistributedDbApi.Controllers.ReportsController.GetAverageScores (DistributedDbApi) in 88.3967ms
+[04:30:04 INF] Executed endpoint 'DistributedDbApi.Controllers.ReportsController.GetAverageScores (DistributedDbApi)'
+[04:30:04 INF] HTTP GET /api/reports/averages responded 200 in 90.3148 ms
+[04:30:04 INF] Request finished HTTP/1.1 GET http://localhost:5020/api/reports/averages?khoa=K1 - 200 null application/json; charset=utf-8 91.7465ms
+[04:30:43 INF] Request starting HTTP/1.1 GET http://localhost:5020/api/reports/failures?threshold=6&khoa=K1 - null null
+[04:30:43 INF] Executing endpoint 'DistributedDbApi.Controllers.ReportsController.GetFailures (DistributedDbApi)'
+[04:30:43 INF] Route matched with {action = "GetFailures", controller = "Reports"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] GetFailures(System.Decimal, System.String, System.String, System.Threading.CancellationToken) on controller DistributedDbApi.Controllers.ReportsController (DistributedDbApi).
+[04:30:43 INF] Executed DbCommand (2ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+SELECT d.mssv, d.msmon, d.diem1
+FROM dangky_diem1 AS d
+[04:30:43 INF] Executed DbCommand (2ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+SELECT d.mssv, d.msmon, d.diem2, d.diem3
+FROM dangky_diem23_k1 AS d
+[04:30:43 INF] Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+SELECT s.mssv, s.hocbong, s.hoten, s.mslop, s.ngaysinh, s.phai
+FROM sinhvien_k1 AS s
+[04:30:43 INF] Executing OkObjectResult, writing value of type 'DistributedDbApi.DTOs.ApiResponse`1[[System.Collections.Generic.List`1[[DistributedDbApi.DTOs.FailureReportDto, DistributedDbApi, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]], System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]'.
+[04:30:43 INF] Executed action DistributedDbApi.Controllers.ReportsController.GetFailures (DistributedDbApi) in 17.6106ms
+[04:30:43 INF] Executed endpoint 'DistributedDbApi.Controllers.ReportsController.GetFailures (DistributedDbApi)'
+[04:30:43 INF] HTTP GET /api/reports/failures responded 200 in 19.3359 ms
+[04:30:43 INF] Request finished HTTP/1.1 GET http://localhost:5020/api/reports/failures?threshold=6&khoa=K1 - 200 null application/json; charset=utf-8 19.8995ms
+[04:30:57 INF] Request starting HTTP/1.1 GET http://localhost:5020/api/reports/distribution?msmon=M01&khoa=K1 - null null
+[04:30:57 INF] Executing endpoint 'DistributedDbApi.Controllers.ReportsController.GetScoreDistribution (DistributedDbApi)'
+[04:30:57 INF] Route matched with {action = "GetScoreDistribution", controller = "Reports"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] GetScoreDistribution(System.String, System.String, System.Threading.CancellationToken) on controller DistributedDbApi.Controllers.ReportsController (DistributedDbApi).
+[04:30:57 INF] Executed DbCommand (4ms) [Parameters=[@__msmon_0='?'], CommandType='Text', CommandTimeout='30']
+SELECT d.mssv, d.msmon, d.diem1
+FROM dangky_diem1 AS d
+WHERE d.msmon = @__msmon_0
+[04:30:57 INF] Executed DbCommand (1ms) [Parameters=[@__msmon_0='?'], CommandType='Text', CommandTimeout='30']
+SELECT d.mssv, d.msmon, d.diem2, d.diem3
+FROM dangky_diem23_k1 AS d
+WHERE d.msmon = @__msmon_0
+[04:30:57 INF] Executing OkObjectResult, writing value of type 'DistributedDbApi.DTOs.ApiResponse`1[[DistributedDbApi.DTOs.ScoreDistributionReportDto, DistributedDbApi, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+[04:30:57 INF] Executed action DistributedDbApi.Controllers.ReportsController.GetScoreDistribution (DistributedDbApi) in 15.6347ms
+[04:30:57 INF] Executed endpoint 'DistributedDbApi.Controllers.ReportsController.GetScoreDistribution (DistributedDbApi)'
+[04:30:57 INF] HTTP GET /api/reports/distribution responded 200 in 17.8419 ms
+[04:30:57 INF] Request finished HTTP/1.1 GET http://localhost:5020/api/reports/distribution?msmon=M01&khoa=K1 - 200 null application/json; charset=utf-8 18.3621ms
+[04:31:23 INF] Request starting HTTP/1.1 GET http://localhost:5020/api/reports/scholarships?top=3 - null null
+[04:31:23 INF] Executing endpoint 'DistributedDbApi.Controllers.ReportsController.GetScholarships (DistributedDbApi)'
+[04:31:23 INF] Route matched with {action = "GetScholarships", controller = "Reports"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] GetScholarships(System.String, System.Decimal, Int32, System.Threading.CancellationToken) on controller DistributedDbApi.Controllers.ReportsController (DistributedDbApi).
+[04:31:23 INF] Executed DbCommand (4ms) [Parameters=[@__minAmount_0='?' (DbType = Decimal), @__p_1='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+SELECT s.mssv, s.hocbong, s.hoten, s.mslop, s.ngaysinh, s.phai
+FROM sinhvien_k1 AS s
+WHERE s.hocbong >= @__minAmount_0
+ORDER BY s.hocbong DESC
+LIMIT @__p_1
+[04:31:23 INF] Executed DbCommand (4ms) [Parameters=[@__minAmount_0='?' (DbType = Decimal), @__p_1='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+SELECT s.mssv, s.hocbong, s.hoten, s.mslop, s.ngaysinh, s.phai
+FROM sinhvien_k2 AS s
+WHERE s.hocbong >= @__minAmount_0
+ORDER BY s.hocbong DESC
+LIMIT @__p_1
+[04:31:23 INF] Executing OkObjectResult, writing value of type 'DistributedDbApi.DTOs.ApiResponse`1[[System.Collections.Generic.List`1[[DistributedDbApi.DTOs.ScholarshipReportDto, DistributedDbApi, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]], System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]'.
+[04:31:23 INF] Executed action DistributedDbApi.Controllers.ReportsController.GetScholarships (DistributedDbApi) in 15.9916ms
+[04:31:23 INF] Executed endpoint 'DistributedDbApi.Controllers.ReportsController.GetScholarships (DistributedDbApi)'
+[04:31:23 INF] HTTP GET /api/reports/scholarships responded 200 in 16.2114 ms
+[04:31:23 INF] Request finished HTTP/1.1 GET http://localhost:5020/api/reports/scholarships?top=3 - 200 null application/json; charset=utf-8 16.8031ms
+[04:31:23 INF] Request starting HTTP/1.1 GET http://localhost:5020/api/reports/averages?msmon=M02 - null null
+[04:31:23 INF] Executing endpoint 'DistributedDbApi.Controllers.ReportsController.GetAverageScores (DistributedDbApi)'
+[04:31:23 INF] Route matched with {action = "GetAverageScores", controller = "Reports"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] GetAverageScores(System.String, System.String, System.Threading.CancellationToken) on controller DistributedDbApi.Controllers.ReportsController (DistributedDbApi).
+[04:31:23 INF] Executed DbCommand (3ms) [Parameters=[@__msmon_0='?'], CommandType='Text', CommandTimeout='30']
+SELECT d.mssv, d.msmon, d.diem1
+FROM dangky_diem1 AS d
+WHERE d.msmon = @__msmon_0
+[04:31:23 INF] Executed DbCommand (2ms) [Parameters=[@__subject_0='?'], CommandType='Text', CommandTimeout='30']
+SELECT d.mssv, d.msmon, d.diem2, d.diem3
+FROM dangky_diem23_k1 AS d
+WHERE d.msmon = @__subject_0
+[04:31:23 INF] Executed DbCommand (2ms) [Parameters=[@__subject_0='?'], CommandType='Text', CommandTimeout='30']
+SELECT d.mssv, d.msmon, d.diem2, d.diem3
+FROM dangky_diem23_k2 AS d
+WHERE d.msmon = @__subject_0
+[04:31:23 INF] Executing OkObjectResult, writing value of type 'DistributedDbApi.DTOs.ApiResponse`1[[System.Collections.Generic.List`1[[DistributedDbApi.DTOs.AverageScoreReportDto, DistributedDbApi, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]], System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]'.
+[04:31:23 INF] Executed action DistributedDbApi.Controllers.ReportsController.GetAverageScores (DistributedDbApi) in 7.6231ms
+[04:31:23 INF] Executed endpoint 'DistributedDbApi.Controllers.ReportsController.GetAverageScores (DistributedDbApi)'
+[04:31:23 INF] HTTP GET /api/reports/averages responded 200 in 7.7659 ms
+[04:31:23 INF] Request finished HTTP/1.1 GET http://localhost:5020/api/reports/averages?msmon=M02 - 200 null application/json; charset=utf-8 7.9575ms
+[04:31:23 INF] Request starting HTTP/1.1 GET http://localhost:5020/api/reports/distribution?msmon=M02 - null null
+[04:31:23 INF] Executing endpoint 'DistributedDbApi.Controllers.ReportsController.GetScoreDistribution (DistributedDbApi)'
+[04:31:23 INF] Route matched with {action = "GetScoreDistribution", controller = "Reports"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] GetScoreDistribution(System.String, System.String, System.Threading.CancellationToken) on controller DistributedDbApi.Controllers.ReportsController (DistributedDbApi).
+[04:31:23 INF] Executed DbCommand (1ms) [Parameters=[@__msmon_0='?'], CommandType='Text', CommandTimeout='30']
+SELECT d.mssv, d.msmon, d.diem1
+FROM dangky_diem1 AS d
+WHERE d.msmon = @__msmon_0
+[04:31:23 INF] Executed DbCommand (1ms) [Parameters=[@__msmon_0='?'], CommandType='Text', CommandTimeout='30']
+SELECT d.mssv, d.msmon, d.diem2, d.diem3
+FROM dangky_diem23_k1 AS d
+WHERE d.msmon = @__msmon_0
+[04:31:23 INF] Executed DbCommand (1ms) [Parameters=[@__msmon_0='?'], CommandType='Text', CommandTimeout='30']
+SELECT d.mssv, d.msmon, d.diem2, d.diem3
+FROM dangky_diem23_k2 AS d
+WHERE d.msmon = @__msmon_0
+[04:31:23 INF] Executing OkObjectResult, writing value of type 'DistributedDbApi.DTOs.ApiResponse`1[[DistributedDbApi.DTOs.ScoreDistributionReportDto, DistributedDbApi, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'.
+[04:31:23 INF] Executed action DistributedDbApi.Controllers.ReportsController.GetScoreDistribution (DistributedDbApi) in 6.6621ms
+[04:31:23 INF] Executed endpoint 'DistributedDbApi.Controllers.ReportsController.GetScoreDistribution (DistributedDbApi)'
+[04:31:23 INF] HTTP GET /api/reports/distribution responded 200 in 6.7947 ms
+[04:31:23 INF] Request finished HTTP/1.1 GET http://localhost:5020/api/reports/distribution?msmon=M02 - 200 null application/json; charset=utf-8 6.9847ms
+[04:32:08 INF] Request starting HTTP/1.1 GET http://localhost:5020/index.html - null null
+[04:32:08 INF] Request finished HTTP/1.1 GET http://localhost:5020/index.html - 200 null text/html;charset=utf-8 43.6069ms
+[04:32:08 INF] Request starting HTTP/1.1 GET http://localhost:5020/index.js - null null
+[04:32:08 INF] Request finished HTTP/1.1 GET http://localhost:5020/index.js - 200 null application/javascript;charset=utf-8 1.4846ms
+[04:32:08 INF] Request starting HTTP/1.1 GET http://localhost:5020/swagger/v1/swagger.json - null null
+[04:32:08 INF] Request finished HTTP/1.1 GET http://localhost:5020/swagger/v1/swagger.json - 200 null application/json;charset=utf-8 69.1682ms
+[04:32:40 INF] Request starting HTTP/1.1 PATCH http://localhost:5020/api/Students/MS01 - application/json 169
+[04:32:40 INF] CORS policy execution successful.
+[04:32:40 INF] Executing endpoint 'DistributedDbApi.Controllers.StudentsController.UpdateStudent (DistributedDbApi)'
+[04:32:40 INF] Route matched with {action = "UpdateStudent", controller = "Students"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] UpdateStudent(System.String, DistributedDbApi.DTOs.UpdateStudentDto, System.Threading.CancellationToken) on controller DistributedDbApi.Controllers.StudentsController (DistributedDbApi).
+[04:32:40 INF] Bắt đầu cập nhật sinh viên MS01
+[04:32:40 INF] Executed DbCommand (3ms) [Parameters=[@__mssv_0='?'], CommandType='Text', CommandTimeout='30']
+SELECT s.mssv, s.hocbong, s.hoten, s.mslop, s.ngaysinh, s.phai
+FROM sinhvien_k1 AS s
+WHERE s.mssv = @__mssv_0
+LIMIT 1
+[04:32:40 INF] Executed DbCommand (3ms) [Parameters=[@__mssv_0='?'], CommandType='Text', CommandTimeout='30']
+SELECT s.mssv, s.hocbong, s.hoten, s.mslop, s.ngaysinh, s.phai
+FROM sinhvien_k2 AS s
+WHERE s.mssv = @__mssv_0
+LIMIT 1
+[04:32:40 WRN] Sinh viên MS01 không tồn tại
+[04:32:40 INF] Executing NotFoundObjectResult, writing value of type 'DistributedDbApi.DTOs.OperationResultDto'.
+[04:32:40 INF] Executed action DistributedDbApi.Controllers.StudentsController.UpdateStudent (DistributedDbApi) in 17.0169ms
+[04:32:40 INF] Executed endpoint 'DistributedDbApi.Controllers.StudentsController.UpdateStudent (DistributedDbApi)'
+[04:32:40 INF] HTTP PATCH /api/Students/MS01 responded 404 in 24.0147 ms
+[04:32:40 INF] Request finished HTTP/1.1 PATCH http://localhost:5020/api/Students/MS01 - 404 null application/json; charset=utf-8 25.3977ms
+[04:32:51 INF] Request starting HTTP/1.1 PATCH http://localhost:5020/api/Students/SV001 - application/json 169
+[04:32:51 INF] CORS policy execution successful.
+[04:32:51 INF] Executing endpoint 'DistributedDbApi.Controllers.StudentsController.UpdateStudent (DistributedDbApi)'
+[04:32:51 INF] Route matched with {action = "UpdateStudent", controller = "Students"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] UpdateStudent(System.String, DistributedDbApi.DTOs.UpdateStudentDto, System.Threading.CancellationToken) on controller DistributedDbApi.Controllers.StudentsController (DistributedDbApi).
+[04:32:51 INF] Bắt đầu cập nhật sinh viên SV001
+[04:32:51 INF] Executed DbCommand (6ms) [Parameters=[@__mssv_0='?'], CommandType='Text', CommandTimeout='30']
+SELECT s.mssv, s.hocbong, s.hoten, s.mslop, s.ngaysinh, s.phai
+FROM sinhvien_k1 AS s
+WHERE s.mssv = @__mssv_0
+LIMIT 1
+[04:32:51 INF] Executed DbCommand (2ms) [Parameters=[@__mssv_0='?'], CommandType='Text', CommandTimeout='30']
+SELECT s.mssv, s.hocbong, s.hoten, s.mslop, s.ngaysinh, s.phai
+FROM sinhvien_k2 AS s
+WHERE s.mssv = @__mssv_0
+LIMIT 1
+[04:32:51 INF] Sinh viên SV001 tìm thấy ở site K1
+[04:32:51 INF] Executed DbCommand (1ms) [Parameters=[@__mslop_0='?'], CommandType='Text', CommandTimeout='30']
+SELECT l.mslop, l.khoa, l.tenlop
+FROM lop_k1 AS l
+WHERE l.mslop = @__mslop_0
+LIMIT 1
+[04:32:51 INF] Executed DbCommand (2ms) [Parameters=[@__mslop_0='?'], CommandType='Text', CommandTimeout='30']
+SELECT l.mslop, l.khoa, l.tenlop
+FROM lop_k2 AS l
+WHERE l.mslop = @__mslop_0
+LIMIT 1
+[04:32:51 INF] Executing NotFoundObjectResult, writing value of type 'DistributedDbApi.DTOs.OperationResultDto'.
+[04:32:51 INF] Executed action DistributedDbApi.Controllers.StudentsController.UpdateStudent (DistributedDbApi) in 40.1645ms
+[04:32:51 INF] Executed endpoint 'DistributedDbApi.Controllers.StudentsController.UpdateStudent (DistributedDbApi)'
+[04:32:51 INF] HTTP PATCH /api/Students/SV001 responded 404 in 40.6708 ms
+[04:32:51 INF] Request finished HTTP/1.1 PATCH http://localhost:5020/api/Students/SV001 - 404 null application/json; charset=utf-8 41.648ms
+[04:33:15 INF] Request starting HTTP/1.1 GET http://localhost:5020/index.html - null null
+[04:33:15 INF] Request finished HTTP/1.1 GET http://localhost:5020/index.html - 200 null text/html;charset=utf-8 1.3095ms
+[04:33:15 INF] Request starting HTTP/1.1 GET http://localhost:5020/index.js - null null
+[04:33:15 INF] Request finished HTTP/1.1 GET http://localhost:5020/index.js - 200 null application/javascript;charset=utf-8 0.4224ms
+[04:33:15 INF] Request starting HTTP/1.1 GET http://localhost:5020/swagger/v1/swagger.json - null null
+[04:33:15 INF] Request finished HTTP/1.1 GET http://localhost:5020/swagger/v1/swagger.json - 200 null application/json;charset=utf-8 15.503ms
+[04:33:29 INF] Request starting HTTP/1.1 GET http://localhost:5020/api/Reports/scholarships?khoa=k1&minAmount=0&top=20 - null null
+[04:33:29 INF] Executing endpoint 'DistributedDbApi.Controllers.ReportsController.GetScholarships (DistributedDbApi)'
+[04:33:29 INF] Route matched with {action = "GetScholarships", controller = "Reports"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] GetScholarships(System.String, System.Decimal, Int32, System.Threading.CancellationToken) on controller DistributedDbApi.Controllers.ReportsController (DistributedDbApi).
+[04:33:29 INF] Executed DbCommand (2ms) [Parameters=[@__minAmount_0='?' (DbType = Decimal), @__p_1='?' (DbType = Int32)], CommandType='Text', CommandTimeout='30']
+SELECT s.mssv, s.hocbong, s.hoten, s.mslop, s.ngaysinh, s.phai
+FROM sinhvien_k1 AS s
+WHERE s.hocbong >= @__minAmount_0
+ORDER BY s.hocbong DESC
+LIMIT @__p_1
+[04:33:29 INF] Executing OkObjectResult, writing value of type 'DistributedDbApi.DTOs.ApiResponse`1[[System.Collections.Generic.List`1[[DistributedDbApi.DTOs.ScholarshipReportDto, DistributedDbApi, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]], System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]'.
+[04:33:29 INF] Executed action DistributedDbApi.Controllers.ReportsController.GetScholarships (DistributedDbApi) in 3.9198ms
+[04:33:29 INF] Executed endpoint 'DistributedDbApi.Controllers.ReportsController.GetScholarships (DistributedDbApi)'
+[04:33:29 INF] HTTP GET /api/Reports/scholarships responded 200 in 4.2977 ms
+[04:33:29 INF] Request finished HTTP/1.1 GET http://localhost:5020/api/Reports/scholarships?khoa=k1&minAmount=0&top=20 - 200 null application/json; charset=utf-8 5.0747ms
+[04:38:36 INF] Request starting HTTP/1.1 POST http://localhost:5020/api/Students - application/json 231
+[04:38:36 INF] CORS policy execution successful.
+[04:38:36 INF] Executing endpoint 'DistributedDbApi.Controllers.StudentsController.CreateStudent (DistributedDbApi)'
+[04:38:36 INF] Route matched with {action = "CreateStudent", controller = "Students"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] CreateStudent(DistributedDbApi.DTOs.CreateStudentDto, System.Threading.CancellationToken) on controller DistributedDbApi.Controllers.StudentsController (DistributedDbApi).
+[04:38:36 INF] Bắt đầu tạo sinh viên SV394957899709278331
+[04:38:36 INF] Executed DbCommand (4ms) [Parameters=[@__mssv_0='?'], CommandType='Text', CommandTimeout='30']
+SELECT s.mssv, s.hocbong, s.hoten, s.mslop, s.ngaysinh, s.phai
+FROM sinhvien_k1 AS s
+WHERE s.mssv = @__mssv_0
+LIMIT 1
+[04:38:36 INF] Executed DbCommand (4ms) [Parameters=[@__mssv_0='?'], CommandType='Text', CommandTimeout='30']
+SELECT s.mssv, s.hocbong, s.hoten, s.mslop, s.ngaysinh, s.phai
+FROM sinhvien_k2 AS s
+WHERE s.mssv = @__mssv_0
+LIMIT 1
+[04:38:36 WRN] Sinh viên SV394957899709278331 không tồn tại
+[04:38:36 INF] Executed DbCommand (3ms) [Parameters=[@__mslop_0='?'], CommandType='Text', CommandTimeout='30']
+SELECT l.mslop, l.khoa, l.tenlop
+FROM lop_k1 AS l
+WHERE l.mslop = @__mslop_0
+LIMIT 1
+[04:38:36 INF] Executed DbCommand (2ms) [Parameters=[@__mslop_0='?'], CommandType='Text', CommandTimeout='30']
+SELECT l.mslop, l.khoa, l.tenlop
+FROM lop_k2 AS l
+WHERE l.mslop = @__mslop_0
+LIMIT 1
+[04:38:36 INF] Executing BadRequestObjectResult, writing value of type 'DistributedDbApi.DTOs.OperationResultDto'.
+[04:38:36 INF] Executed action DistributedDbApi.Controllers.StudentsController.CreateStudent (DistributedDbApi) in 35.3178ms
+[04:38:36 INF] Executed endpoint 'DistributedDbApi.Controllers.StudentsController.CreateStudent (DistributedDbApi)'
+[04:38:36 INF] HTTP POST /api/Students responded 400 in 36.2343 ms
+[04:38:36 INF] Request finished HTTP/1.1 POST http://localhost:5020/api/Students - 400 null application/json; charset=utf-8 38.2137ms
+[04:38:46 INF] Request starting HTTP/1.1 POST http://localhost:5020/api/Students - application/json 166
+[04:38:46 INF] CORS policy execution successful.
+[04:38:46 INF] Executing endpoint 'DistributedDbApi.Controllers.StudentsController.CreateStudent (DistributedDbApi)'
+[04:38:46 INF] Route matched with {action = "CreateStudent", controller = "Students"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] CreateStudent(DistributedDbApi.DTOs.CreateStudentDto, System.Threading.CancellationToken) on controller DistributedDbApi.Controllers.StudentsController (DistributedDbApi).
+[04:38:46 INF] Bắt đầu tạo sinh viên SV394957899709278331
+[04:38:46 INF] Executed DbCommand (2ms) [Parameters=[@__mssv_0='?'], CommandType='Text', CommandTimeout='30']
+SELECT s.mssv, s.hocbong, s.hoten, s.mslop, s.ngaysinh, s.phai
+FROM sinhvien_k1 AS s
+WHERE s.mssv = @__mssv_0
+LIMIT 1
+[04:38:46 INF] Executed DbCommand (1ms) [Parameters=[@__mssv_0='?'], CommandType='Text', CommandTimeout='30']
+SELECT s.mssv, s.hocbong, s.hoten, s.mslop, s.ngaysinh, s.phai
+FROM sinhvien_k2 AS s
+WHERE s.mssv = @__mssv_0
+LIMIT 1
+[04:38:46 WRN] Sinh viên SV394957899709278331 không tồn tại
+[04:38:46 INF] Executed DbCommand (1ms) [Parameters=[@__mslop_0='?'], CommandType='Text', CommandTimeout='30']
+SELECT l.mslop, l.khoa, l.tenlop
+FROM lop_k1 AS l
+WHERE l.mslop = @__mslop_0
+LIMIT 1
+[04:38:46 ERR] Failed executing DbCommand (4ms) [Parameters=[@p0='?', @p1='?' (DbType = Decimal), @p2='?', @p3='?', @p4='?' (DbType = DateTime), @p5='?'], CommandType='Text', CommandTimeout='30']
+INSERT INTO sinhvien_k1 (mssv, hocbong, hoten, mslop, ngaysinh, phai)
+VALUES (@p0, @p1, @p2, @p3, @p4, @p5);
+[04:38:46 ERR] An exception occurred in the database while saving changes for context type 'DistributedDbApi.Data.DbContexts.SinhVienK1DbContext'.
+Microsoft.EntityFrameworkCore.DbUpdateException: An error occurred while saving the entity changes. See the inner exception for details.
+ ---> Npgsql.PostgresException (0x80004005): 22001: value too long for type character varying(10)
+   at Npgsql.Internal.NpgsqlConnector.ReadMessageLong(Boolean async, DataRowLoadingMode dataRowLoadingMode, Boolean readingNotifications, Boolean isReadingPrependedMessage)
+   at System.Runtime.CompilerServices.PoolingAsyncValueTaskMethodBuilder`1.StateMachineBox`1.System.Threading.Tasks.Sources.IValueTaskSource<TResult>.GetResult(Int16 token)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(Boolean async, CommandBehavior behavior, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(Boolean async, CommandBehavior behavior, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteDbDataReaderAsync(CommandBehavior behavior, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)
+  Exception data:
+    Severity: ERROR
+    SqlState: 22001
+    MessageText: value too long for type character varying(10)
+    File: varchar.c
+    Line: 638
+    Routine: varchar
+   --- End of inner exception stack trace ---
+   at Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalDatabase.SaveChangesAsync(IList`1 entries, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(IList`1 entriesToSave, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(StateManager stateManager, Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.DbContext.SaveChangesAsync(Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
+Microsoft.EntityFrameworkCore.DbUpdateException: An error occurred while saving the entity changes. See the inner exception for details.
+ ---> Npgsql.PostgresException (0x80004005): 22001: value too long for type character varying(10)
+   at Npgsql.Internal.NpgsqlConnector.ReadMessageLong(Boolean async, DataRowLoadingMode dataRowLoadingMode, Boolean readingNotifications, Boolean isReadingPrependedMessage)
+   at System.Runtime.CompilerServices.PoolingAsyncValueTaskMethodBuilder`1.StateMachineBox`1.System.Threading.Tasks.Sources.IValueTaskSource<TResult>.GetResult(Int16 token)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(Boolean async, CommandBehavior behavior, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(Boolean async, CommandBehavior behavior, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteDbDataReaderAsync(CommandBehavior behavior, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)
+  Exception data:
+    Severity: ERROR
+    SqlState: 22001
+    MessageText: value too long for type character varying(10)
+    File: varchar.c
+    Line: 638
+    Routine: varchar
+   --- End of inner exception stack trace ---
+   at Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalDatabase.SaveChangesAsync(IList`1 entries, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(IList`1 entriesToSave, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(StateManager stateManager, Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.DbContext.SaveChangesAsync(Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
+[04:38:46 ERR] Lỗi khi tạo sinh viên SV394957899709278331
+Microsoft.EntityFrameworkCore.DbUpdateException: An error occurred while saving the entity changes. See the inner exception for details.
+ ---> Npgsql.PostgresException (0x80004005): 22001: value too long for type character varying(10)
+   at Npgsql.Internal.NpgsqlConnector.ReadMessageLong(Boolean async, DataRowLoadingMode dataRowLoadingMode, Boolean readingNotifications, Boolean isReadingPrependedMessage)
+   at System.Runtime.CompilerServices.PoolingAsyncValueTaskMethodBuilder`1.StateMachineBox`1.System.Threading.Tasks.Sources.IValueTaskSource<TResult>.GetResult(Int16 token)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlDataReader.NextResult(Boolean async, Boolean isConsuming, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(Boolean async, CommandBehavior behavior, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteReader(Boolean async, CommandBehavior behavior, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlCommand.ExecuteDbDataReaderAsync(CommandBehavior behavior, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)
+  Exception data:
+    Severity: ERROR
+    SqlState: 22001
+    MessageText: value too long for type character varying(10)
+    File: varchar.c
+    Line: 638
+    Routine: varchar
+   --- End of inner exception stack trace ---
+   at Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalDatabase.SaveChangesAsync(IList`1 entries, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(IList`1 entriesToSave, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(StateManager stateManager, Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.DbContext.SaveChangesAsync(Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.DbContext.SaveChangesAsync(Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
+   at DistributedDbApi.Services.StudentService.CreateStudentAsync(CreateStudentDto dto, CancellationToken ct) in /Users/bbysharp/Documents/CSDL-PT/CSDLPT-DOAN/src/DistributedDbApi/Services/StudentService.cs:line 229
+[04:38:46 INF] Executing BadRequestObjectResult, writing value of type 'DistributedDbApi.DTOs.OperationResultDto'.
+[04:38:46 INF] Executed action DistributedDbApi.Controllers.StudentsController.CreateStudent (DistributedDbApi) in 16.7455ms
+[04:38:46 INF] Executed endpoint 'DistributedDbApi.Controllers.StudentsController.CreateStudent (DistributedDbApi)'
+[04:38:46 INF] HTTP POST /api/Students responded 400 in 16.9229 ms
+[04:38:46 INF] Request finished HTTP/1.1 POST http://localhost:5020/api/Students - 400 null application/json; charset=utf-8 17.1184ms
+[04:39:19 INF] Request starting HTTP/1.1 POST http://localhost:5020/api/Students - application/json 203
+[04:39:19 INF] CORS policy execution successful.
+[04:39:19 INF] Executing endpoint 'DistributedDbApi.Controllers.StudentsController.CreateStudent (DistributedDbApi)'
+[04:39:19 INF] Route matched with {action = "CreateStudent", controller = "Students"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] CreateStudent(DistributedDbApi.DTOs.CreateStudentDto, System.Threading.CancellationToken) on controller DistributedDbApi.Controllers.StudentsController (DistributedDbApi).
+[04:39:19 INF] Bắt đầu tạo sinh viên SV914102
+[04:39:19 INF] Executed DbCommand (2ms) [Parameters=[@__mssv_0='?'], CommandType='Text', CommandTimeout='30']
+SELECT s.mssv, s.hocbong, s.hoten, s.mslop, s.ngaysinh, s.phai
+FROM sinhvien_k1 AS s
+WHERE s.mssv = @__mssv_0
+LIMIT 1
+[04:39:19 INF] Executed DbCommand (1ms) [Parameters=[@__mssv_0='?'], CommandType='Text', CommandTimeout='30']
+SELECT s.mssv, s.hocbong, s.hoten, s.mslop, s.ngaysinh, s.phai
+FROM sinhvien_k2 AS s
+WHERE s.mssv = @__mssv_0
+LIMIT 1
+[04:39:19 WRN] Sinh viên SV914102 không tồn tại
+[04:39:19 INF] Executed DbCommand (4ms) [Parameters=[@__mslop_0='?'], CommandType='Text', CommandTimeout='30']
+SELECT l.mslop, l.khoa, l.tenlop
+FROM lop_k1 AS l
+WHERE l.mslop = @__mslop_0
+LIMIT 1
+[04:39:19 INF] Executed DbCommand (1ms) [Parameters=[@__mslop_0='?'], CommandType='Text', CommandTimeout='30']
+SELECT l.mslop, l.khoa, l.tenlop
+FROM lop_k2 AS l
+WHERE l.mslop = @__mslop_0
+LIMIT 1
+[04:39:19 INF] Executing BadRequestObjectResult, writing value of type 'DistributedDbApi.DTOs.OperationResultDto'.
+[04:39:19 INF] Executed action DistributedDbApi.Controllers.StudentsController.CreateStudent (DistributedDbApi) in 13.1778ms
+[04:39:19 INF] Executed endpoint 'DistributedDbApi.Controllers.StudentsController.CreateStudent (DistributedDbApi)'
+[04:39:19 INF] HTTP POST /api/Students responded 400 in 13.5433 ms
+[04:39:19 INF] Request finished HTTP/1.1 POST http://localhost:5020/api/Students - 400 null application/json; charset=utf-8 14.6327ms
+[04:39:30 INF] Request starting HTTP/1.1 POST http://localhost:5020/api/Students - application/json 145
+[04:39:30 INF] CORS policy execution successful.
+[04:39:30 INF] Executing endpoint 'DistributedDbApi.Controllers.StudentsController.CreateStudent (DistributedDbApi)'
+[04:39:30 INF] Route matched with {action = "CreateStudent", controller = "Students"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] CreateStudent(DistributedDbApi.DTOs.CreateStudentDto, System.Threading.CancellationToken) on controller DistributedDbApi.Controllers.StudentsController (DistributedDbApi).
+[04:39:30 INF] Bắt đầu tạo sinh viên SV914102
+[04:39:30 INF] Executed DbCommand (2ms) [Parameters=[@__mssv_0='?'], CommandType='Text', CommandTimeout='30']
+SELECT s.mssv, s.hocbong, s.hoten, s.mslop, s.ngaysinh, s.phai
+FROM sinhvien_k1 AS s
+WHERE s.mssv = @__mssv_0
+LIMIT 1
+[04:39:30 INF] Executed DbCommand (2ms) [Parameters=[@__mssv_0='?'], CommandType='Text', CommandTimeout='30']
+SELECT s.mssv, s.hocbong, s.hoten, s.mslop, s.ngaysinh, s.phai
+FROM sinhvien_k2 AS s
+WHERE s.mssv = @__mssv_0
+LIMIT 1
+[04:39:30 WRN] Sinh viên SV914102 không tồn tại
+[04:39:30 INF] Executed DbCommand (3ms) [Parameters=[@__mslop_0='?'], CommandType='Text', CommandTimeout='30']
+SELECT l.mslop, l.khoa, l.tenlop
+FROM lop_k1 AS l
+WHERE l.mslop = @__mslop_0
+LIMIT 1
+[04:39:30 INF] Executed DbCommand (4ms) [Parameters=[@p0='?', @p1='?' (DbType = Decimal), @p2='?', @p3='?', @p4='?' (DbType = DateTime), @p5='?'], CommandType='Text', CommandTimeout='30']
+INSERT INTO sinhvien_k1 (mssv, hocbong, hoten, mslop, ngaysinh, phai)
+VALUES (@p0, @p1, @p2, @p3, @p4, @p5);
+[04:39:30 INF] Tạo sinh viên SV914102 thành công tại Site 3 (K1)
+[04:39:30 INF] Executing CreatedAtActionResult, writing value of type 'DistributedDbApi.DTOs.OperationResultDto'.
+[04:39:30 INF] Executed action DistributedDbApi.Controllers.StudentsController.CreateStudent (DistributedDbApi) in 27.9672ms
+[04:39:30 INF] Executed endpoint 'DistributedDbApi.Controllers.StudentsController.CreateStudent (DistributedDbApi)'
+[04:39:30 INF] HTTP POST /api/Students responded 201 in 28.1824 ms
+[04:39:30 INF] Request finished HTTP/1.1 POST http://localhost:5020/api/Students - 201 null application/json; charset=utf-8 28.3972ms
+[04:41:42 INF] Request starting HTTP/1.1 PATCH http://localhost:5020/api/Students/SV914102 - application/json 132
+[04:41:42 INF] CORS policy execution successful.
+[04:41:42 INF] Executing endpoint 'DistributedDbApi.Controllers.StudentsController.UpdateStudent (DistributedDbApi)'
+[04:41:42 INF] Route matched with {action = "UpdateStudent", controller = "Students"}. Executing controller action with signature System.Threading.Tasks.Task`1[Microsoft.AspNetCore.Mvc.IActionResult] UpdateStudent(System.String, DistributedDbApi.DTOs.UpdateStudentDto, System.Threading.CancellationToken) on controller DistributedDbApi.Controllers.StudentsController (DistributedDbApi).
+[04:41:42 INF] Bắt đầu cập nhật sinh viên SV914102
+[04:41:42 INF] Executed DbCommand (9ms) [Parameters=[@__mssv_0='?'], CommandType='Text', CommandTimeout='30']
+SELECT s.mssv, s.hocbong, s.hoten, s.mslop, s.ngaysinh, s.phai
+FROM sinhvien_k2 AS s
+WHERE s.mssv = @__mssv_0
+LIMIT 1
+[04:41:42 INF] Executed DbCommand (9ms) [Parameters=[@__mssv_0='?'], CommandType='Text', CommandTimeout='30']
+SELECT s.mssv, s.hocbong, s.hoten, s.mslop, s.ngaysinh, s.phai
+FROM sinhvien_k1 AS s
+WHERE s.mssv = @__mssv_0
+LIMIT 1
+[04:41:42 INF] Sinh viên SV914102 tìm thấy ở site K1
+[04:41:42 INF] Executed DbCommand (1ms) [Parameters=[@__mslop_0='?'], CommandType='Text', CommandTimeout='30']
+SELECT l.mslop, l.khoa, l.tenlop
+FROM lop_k1 AS l
+WHERE l.mslop = @__mslop_0
+LIMIT 1
+[04:41:42 INF] Executed DbCommand (1ms) [Parameters=[@__mssv_0='?'], CommandType='Text', CommandTimeout='30']
+SELECT s.mssv, s.hocbong, s.hoten, s.mslop, s.ngaysinh, s.phai
+FROM sinhvien_k1 AS s
+WHERE s.mssv = @__mssv_0
+LIMIT 1
+[04:41:42 INF] Executed DbCommand (3ms) [Parameters=[@p4='?', @p0='?', @p1='?', @p2='?' (DbType = DateTime), @p3='?'], CommandType='Text', CommandTimeout='30']
+UPDATE sinhvien_k1 SET hoten = @p0, mslop = @p1, ngaysinh = @p2, phai = @p3
+WHERE mssv = @p4;
+[04:41:42 INF] Executing OkObjectResult, writing value of type 'DistributedDbApi.DTOs.OperationResultDto'.
+[04:41:42 INF] Executed action DistributedDbApi.Controllers.StudentsController.UpdateStudent (DistributedDbApi) in 20.7092ms
+[04:41:42 INF] Executed endpoint 'DistributedDbApi.Controllers.StudentsController.UpdateStudent (DistributedDbApi)'
+[04:41:42 INF] HTTP PATCH /api/Students/SV914102 responded 200 in 20.9665 ms
+[04:41:42 INF] Request finished HTTP/1.1 PATCH http://localhost:5020/api/Students/SV914102 - 200 null application/json; charset=utf-8 22.2522ms
+[04:43:38 INF] Request starting HTTP/1.1 GET http://localhost:5020/index.html - null null
+[04:43:38 INF] Request finished HTTP/1.1 GET http://localhost:5020/index.html - 200 null text/html;charset=utf-8 2.6804ms
+[04:43:49 INF] Request starting HTTP/1.1 GET http://localhost:5020/index.html - null null
+[04:43:49 INF] Request finished HTTP/1.1 GET http://localhost:5020/index.html - 200 null text/html;charset=utf-8 0.3208ms
